@@ -83,9 +83,10 @@ export function Profile() {
           )}
         </div>
         {data.circles.map((c) => (
-          <div className="live-wish-row" key={c.id}>
-            <strong>{c.name}</strong>
-            <Button
+          <div key={c.id} className="border-b py-4 last:border-b-0">
+            <div className="live-wish-row">
+              <strong>{c.name}</strong>
+              <Button
               variant="outline"
               size="sm"
               onClick={async () => {
@@ -96,8 +97,15 @@ export function Profile() {
               }}
             >
               <Copy />
-              Invite link
+               Invite link
             </Button>
+            </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              {data.people
+                .filter((p) => p.circle_id === c.id)
+                .map((p) => p.display_name)
+                .join(" · ") || "Just you so far — share the invite link."}
+            </p>
           </div>
         ))}
       </section>

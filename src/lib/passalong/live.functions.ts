@@ -85,7 +85,9 @@ export const getLiveData = createServerFn({ method: "POST" })
     const peopleResults = await Promise.all(
       circleRows.map((c) => s.rpc("member_names", { circle: c.id })),
     );
-    const people = peopleResults.flatMap((r) => r.data ?? []);
+    const people = peopleResults.flatMap((r, i) =>
+      (r.data ?? []).map((p) => ({ ...p, circle_id: circleRows[i]!.id })),
+    );
     const itemRows = items.data ?? [];
     const photos = await s.storage.from("item-photos").createSignedUrls(
       itemRows.map((i) => i.photo_path),
