@@ -6,8 +6,8 @@ export async function synchronizeMatches() {
     if (revision.error) throw new Error("Matches could not be updated. Try again.");
     if (!revision.data || revision.data.revision === revision.data.applied) return;
     const [items, wishes, groups, members, links] = await Promise.all([
-      s.from("items").select("id,title,category,circle_id,giver_id").eq("status", "available").gt("expires_at", new Date().toISOString()),
-      s.from("wishes").select("id,text,category,circle_id,user_id"),
+      s.from("items").select("id,title,category,custom_category,circle_id,giver_id").eq("status", "available").gt("expires_at", new Date().toISOString()),
+      s.from("wishes").select("id,text,category,custom_category,circle_id,user_id"),
       s.from("synonyms").select("category,words"),
       s.from("circle_members").select("circle_id,user_id").eq("status", "active"),
       s.from("item_circles").select("item_id,circle_id"),

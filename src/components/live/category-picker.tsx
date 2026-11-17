@@ -1,0 +1,5 @@
+import { Button } from "@/components/ui/button";
+import type { Category } from "@/lib/passalong/category-rules";
+export function CategoryPicker({categories,value,onChange,custom="",onCustomChange,label="Category",required=true}:{categories:Category[];value:string;onChange:(v:string)=>void;custom?:string;onCustomChange?:(v:string)=>void;label?:string;required?:boolean}) {
+  return <fieldset className="grid gap-3"><legend className="form-label mb-3">{label}</legend><div className="flex flex-wrap gap-2" role="group" aria-label={label}>{categories.map(category=><Button key={category.id} type="button" variant={value===category.key?"default":"outline"} aria-pressed={value===category.key} onClick={()=>onChange(category.key)} className="live-wrap-button">{category.name}</Button>)}</div>{value.toLowerCase()==="other"&&onCustomChange&&<label className="form-label">What would you call it?<input required={required} aria-label={`${label}: What would you call it?`} className="text-input" maxLength={30} value={custom} onChange={e=>onCustomChange(e.target.value)}/></label>}</fieldset>;
+}

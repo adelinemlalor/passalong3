@@ -4,7 +4,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { CATEGORIES, EVENT_NAMES } from "@/lib/passalong/live-rules";
+import { EVENT_NAMES } from "@/lib/passalong/live-rules";
+import { CategoryPicker } from "./category-picker";
+import { CategoryAdmin } from "./category-admin";
+import { categoryLabel } from "@/lib/passalong/category-rules";
 import { getAdminMetrics, getSynonyms, getAdminMembers } from "@/lib/passalong/live.functions";
 import { useLive } from "./context";
 interface Metrics {
@@ -141,18 +144,7 @@ export function Admin() {
             await synonyms.refetch();
           }}
         >
-          <label className="form-label">
-            Category
-            <select
-              className="text-input"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c}>{c}</option>
-              ))}
-            </select>
-          </label>
+          <CategoryPicker categories={data.categories} value={category} onChange={setCategory}/>
           <label className="form-label">
             Synonyms
             <input
@@ -171,7 +163,7 @@ export function Admin() {
         {synonyms.data?.map((s) => (
           <div key={s.id} className="live-wish-row">
             <p>
-              {s.category}: {s.words.join(", ")}
+              {categoryLabel(s.category,"",data.categories)}: {s.words.join(", ")}
             </p>
             <Button
               disabled={busy}
@@ -187,6 +179,7 @@ export function Admin() {
           </div>
         ))}
       </section>
+      <CategoryAdmin/>
       <section className="live-section">
         <h2>Chat reports</h2>
         {m?.reports.map((r) => (

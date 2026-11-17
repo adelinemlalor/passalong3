@@ -1,4 +1,6 @@
 # Passalong
+- [ ] Add Part 6B database-managed categories, custom-category matching and promotion, fuller profiles and private member views.
+- [ ] Verify category chips, custom matching, admin edits, profile settings and phone/desktop flows.
 - [x] Add Part 6A circle ownership, discovery, member pages and multi-circle posting with database visibility safeguards.
 - [x] Verify Part 6A joining, owner actions, shared-item claims and phone/desktop access with temporary accounts; all temporary records removed.
 - [x] Verify phone and desktop tab/control parity; expose desktop categories and chat replies without horizontal scrolling; rerun posting, claims, messaging, pickup, thanks, and history on both sizes.

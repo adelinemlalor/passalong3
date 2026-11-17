@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link,useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { PICKUP_TIMES } from "@/lib/passalong/category-rules";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -15,6 +17,8 @@ export function Profile() {
     [avatar, setAvatar] = useState(""),
     [saving, setSaving] = useState(false),
     [notificationsOn, setNotificationsOn] = useState(data.profile?.match_notifications ?? true);
+  const [times,setTimes]=useState(data.profile?.pickup_times??[]),[claimEmails,setClaimEmails]=useState(data.profile?.claim_emails??true),[messageEmails,setMessageEmails]=useState(data.profile?.message_emails??true),[failure,setFailure]=useState("");
+  const navigate=useNavigate(),q=useQueryClient();
   const history = data.claims.filter((c) => ["picked_up", "thanked"].includes(c.status)),
     own = data.items.filter((i) => i.giver_id === data.userId);
   async function save() {
@@ -32,11 +36,12 @@ export function Profile() {
         if (upload.error) throw upload.error;
         avatar_url = path;
       }
-      await act("profile", { display_name: name, avatar_url, bio, general_area:area });
+      await act("profile", { display_name: name, avatar_url, bio, general_area:area,pickup_times:times });
+      setFailure("");
       setAvatar("");
       toast.success("Profile saved.");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Profile could not be saved.");
+      setFailure(e instanceof Error ? e.message : "Profile could not be saved. Try again.");
     } finally {
       setSaving(false);
     }
@@ -63,7 +68,7 @@ export function Profile() {
             onChange={(e) => setName(e.target.value)}
           />
         </label>
-        <label className="form-label">Bio<textarea className="text-input" maxLength={200} rows={3} value={bio} onChange={e=>setBio(e.target.value)}/></label>
+        <label className="form-label">Bio<textarea className="text-input" maxLength={160} rows={3} placeholder="A line about you, e.g. Second-year, always growing something on my windowsill." value={bio} onChange={e=>setBio(e.target.value)}/></label>
         <label className="form-label">General area<input className="text-input" maxLength={80} value={area} placeholder="South Berkeley" onChange={e=>setArea(e.target.value)}/><span className="text-sm text-muted-foreground">A neighborhood or landmark, not your address.</span></label>
         <details>
           <summary className="text-sm cursor-pointer">Change profile photo (optional)</summary>
@@ -71,11 +76,15 @@ export function Profile() {
             <PhotoPicker image={avatar || data.avatarPhoto} onChange={setAvatar} />
           </div>
         </details>
+        <fieldset><legend className="form-label mb-3">Good times to pick up from me</legend><div className="flex flex-wrap gap-2">{PICKUP_TIMES.map(time=><Button type="button" variant={times.includes(time)?"default":"outline"} aria-pressed={times.includes(time)} key={time} onClick={()=>setTimes(old=>old.includes(time)?old.filter(t=>t!==time):[...old,time])}>{time}</Button>)}</div></fieldset>
+        {failure&&<p role="alert">{failure}</p>}
         <Button disabled={busy || saving} type="submit">
           {saving ? "Saving…" : "Save profile"}
         </Button>
       </form>
       <section className="live-section"><h2>Match notifications</h2><label className="flex items-center gap-3 mt-4"><Switch aria-label="Match notifications" checked={notificationsOn} disabled={busy} onCheckedChange={enabled=>{setNotificationsOn(enabled);void act("notification_setting",{enabled}).catch(()=>setNotificationsOn(!enabled));}} /><span>{notificationsOn ? "On" : "Off"}</span></label><p className="text-sm text-muted-foreground mt-3">Quiet hours: 9 pm–8 am.</p><Button className="mt-4" variant="link" asChild><Link to="/how-it-works">How Passalong works & what we record</Link></Button></section>
+      <section className="live-section"><h2>Email notifications</h2><label className="flex gap-3 items-center mt-4"><Switch aria-label="Claim emails" checked={claimEmails} disabled={busy} onCheckedChange={enabled=>{setClaimEmails(enabled);void act("profile",{claim_emails:enabled}).catch(()=>setClaimEmails(!enabled));}}/>Claim emails · {claimEmails?"On":"Off"}</label><label className="flex gap-3 items-center mt-4"><Switch aria-label="Message emails" checked={messageEmails} disabled={busy} onCheckedChange={enabled=>{setMessageEmails(enabled);void act("profile",{message_emails:enabled}).catch(()=>setMessageEmails(!enabled));}}/>Message emails · {messageEmails?"On":"Off"}</label></section>
+      <section className="live-section"><h2>Kind words</h2>{data.kindWords.length?data.kindWords.map(note=><blockquote className="border-b py-4" key={note.id}><p>{note.text}</p><p className="text-sm text-muted-foreground mt-2">{data.people.find(p=>p.id===note.writer_id)?.display_name??"Circle member"}</p></blockquote>):<p className="text-muted-foreground mt-4">No shared thank-you notes yet.</p>}</section>
       <section className="live-section">
         <div className="section-label">
           <h2>My circles</h2>
@@ -144,6 +153,7 @@ export function Profile() {
           ))}
         </div>
       </section>
+      <Button className="mt-6" variant="outline" onClick={async()=>{await q.cancelQueries();q.clear();await supabase.auth.signOut();await navigate({to:"/auth",search:{next:"/home"}});}}>Sign out</Button>
     </div>
   );
 }

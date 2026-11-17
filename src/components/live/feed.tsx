@@ -3,12 +3,14 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Heart, Search, PackageOpen, X, ArrowRight, Plus, Check } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { CATEGORIES, mainWord } from "@/lib/passalong/live-rules";
+import { mainWord } from "@/lib/passalong/live-rules";
+import { categoryLabel } from "@/lib/passalong/category-rules";
 import { useLive, type LiveItem } from "./context";
 export function available(item: LiveItem) {
   return item.status === "available" && new Date(item.expires_at).getTime() > Date.now();
 }
 export function ItemCard({ item, reason }: { item: LiveItem; reason?: string | undefined }) {
+  const {data}=useLive();
   return (
     <article className="offer-card">
       <Link to="/i/$id" params={{ id: item.id }} className="live-photo">
@@ -18,7 +20,7 @@ export function ItemCard({ item, reason }: { item: LiveItem; reason?: string | u
         </span>
       </Link>
       <div className="live-card-body">
-        <span className="text-xs text-muted-foreground">{item.category}</span>
+        <span className="text-xs text-muted-foreground">{categoryLabel(item.category,item.custom_category,data.categories)}</span>
         <h3>
           <Link to="/i/$id" params={{ id: item.id }}>
             {item.title}
@@ -181,14 +183,15 @@ export function Feed({ browse = false, initialCategory }: { browse?: boolean; in
           />
         </label>
         <div className="category-scroll">
-          {["All", ...CATEGORIES].map((c) => (
+          {[{key:"All",name:"All"}, ...data.categories].map((c) => (
             <Button
-              key={c}
+              key={c.key}
               variant="outline"
-              className={`category-chip ${c === category ? "category-active" : ""}`}
-              onClick={() => setCategory(c)}
+              aria-pressed={c.key===category}
+              className={`category-chip ${c.key === category ? "category-active" : ""}`}
+              onClick={() => setCategory(c.key)}
             >
-              {c}
+              {c.name}
             </Button>
           ))}
         </div>
@@ -243,7 +246,7 @@ export function Swipe() {
   }
   async function more() {
     if (!item) return;
-    await act("wish", { circle_id: circleId, category: item.category, text: mainWord(item.title) });
+    await act("wish", { circle_id: circleId, category: item.category,custom_category:item.custom_category, text: mainWord(item.title) });
     await pass();
     toast.success("Added to your wishes.");
   }

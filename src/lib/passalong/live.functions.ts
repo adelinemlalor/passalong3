@@ -70,6 +70,8 @@ export const getLiveData = createServerFn({ method: "POST" })
       s.from("user_roles").select("role"),
       s.from("item_circles").select("*"),
       s.from("circles").select("id,name,is_test,required_email_domain").order("created_at"),
+      s.from("categories").select("*").order("position"),
+      s.from("kind_words").select("*").eq("giver_id",context.userId).eq("show_on_profile",true),
     ]);
     for (const result of results) if (result.error) throw new Error(result.error.message);
     const [
@@ -85,6 +87,8 @@ export const getLiveData = createServerFn({ method: "POST" })
       roles,
       itemCircles,
       adminCircles,
+      categories,
+      kindWords,
     ] = results;
     const circleRows = (circles.data ?? []) as unknown as CircleSummary[];
     const peopleResults = await Promise.all(
@@ -123,6 +127,8 @@ export const getLiveData = createServerFn({ method: "POST" })
       people,
       isAdmin: (roles.data ?? []).some((r) => r.role === "admin"),
       userId: context.userId,
+      categories: categories.data ?? [],
+      kindWords: kindWords.data ?? [],
     };
   });
 const actionSchema = z.object({

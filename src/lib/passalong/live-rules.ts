@@ -55,6 +55,9 @@ export const EVENT_NAMES = [
   "circle_joined_from_search",
   "circle_left",
   "member_removed",
+  "profile_updated",
+  "custom_category_used",
+  "category_promoted",
 ] as const;
 export type EventName = (typeof EVENT_NAMES)[number];
 import { matchItemWish, words } from "@/lib/matching";

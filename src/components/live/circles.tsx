@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { PhotoPicker } from "@/components/passalong/photo-picker";
 import { supabase } from "@/integrations/supabase/client";
-import { circleAction, getCircleMembers, getDiscoverCircles, type CircleSummary } from "@/lib/passalong/circles.functions";
+import { circleAction, getCircleMembers, getMemberProfile, getDiscoverCircles, type CircleSummary } from "@/lib/passalong/circles.functions";
 import { CIRCLE_TYPES, generalArea, orderedCircles } from "@/lib/passalong/circle-rules";
 import { liveQueryKey, useLive } from "./context";
 import { ItemCard, available } from "./feed";
@@ -88,11 +88,11 @@ export function CirclePage({id,created=false}:{id:string;created?:boolean}) {
   </div>;
 }
 export function CircleMember({id,memberId}:{id:string;memberId:string}) {
-  const {data}=useLive(),fetchMembers=useServerFn(getCircleMembers);
+  const {data}=useLive(),fetchMember=useServerFn(getMemberProfile);
   const isMember=data.circles.some(c=>c.id===id);
-  const result=useQuery({queryKey:["circle-members",id],queryFn:()=>fetchMembers({data:{id}}),enabled:isMember}),member=isMember?result.data?.find(m=>m.id===memberId&&m.status==="active"):undefined;
+  const result=useQuery({queryKey:["member-profile",id,memberId],queryFn:()=>fetchMember({data:{id,memberId}}),enabled:isMember}),member=isMember?result.data:undefined;
   if(!isMember)return <p>This profile is private or unavailable.</p>;
-  return <div className="flow-page"><Button asChild variant="link"><Link to="/c/$id" params={{id}}>Back to circle</Link></Button>{result.isPending?<p>Loading member…</p>:!member?<p>This profile is private or unavailable.</p>:<>{member.photo&&<img className="avatar my-5" src={member.photo} alt={member.display_name}/>}<h1>{member.display_name}</h1><p className="mt-4 whitespace-pre-line break-words">{member.bio}</p><p className="text-muted-foreground mt-4">{member.general_area}</p><p className="text-sm mt-3">Joined {new Date(member.joined_at).toLocaleDateString("en-US",{month:"long",year:"numeric"})}</p></>}</div>;
+  return <div className="flow-page"><Button asChild variant="link"><Link to="/c/$id" params={{id}}>Back to circle</Link></Button>{result.isPending?<p>Loading member…</p>:!member?<p>This profile is private or unavailable.</p>:<>{member.photo&&<img className="avatar my-5" src={member.photo} alt={member.display_name}/>}<h1>{member.display_name}</h1><p className="mt-4 whitespace-pre-line break-words">{member.bio}</p><p className="text-muted-foreground mt-4">{member.general_area}</p><p className="text-sm mt-3">{member.passed_along} items passed along</p><section className="live-section"><h2>Circles we share</h2><div className="flex flex-wrap gap-3 mt-4">{member.shared_circles.map(circle=><Button variant="outline" asChild key={circle.id}><Link to="/c/$id" params={{id:circle.id}}>{circle.name}</Link></Button>)}</div></section><section className="live-section"><h2>Kind words</h2>{member.kind_words.length?member.kind_words.map(note=><blockquote className="py-4 border-b" key={note.id}><p>{note.text}</p><p className="text-muted-foreground text-sm mt-2">{note.writer_name}</p></blockquote>):<p className="text-muted-foreground mt-4">No shared thank-you notes yet.</p>}</section></>}</div>;
 }
 export function FindCircles() {
   const {data,act:profileAct,busy:profileBusy}=useLive(),fetchCircles=useServerFn(getDiscoverCircles),{act,busy,error}=useCircleActions();

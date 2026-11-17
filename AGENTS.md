@@ -26,3 +26,6 @@
 - Keep circle ownership and active/pending membership transactional in circle_action, separate from app-admin roles; owner actions and the five-circle cap must never depend on browser state.
 - Use item_circles for inventory, claims, photo access, notifications and matching eligibility; retain items.circle_id only as first-selected preview and event attribution to preserve existing links.
 - Return circle invite tokens only through permission-scoped my_circles; discovery and private member profiles use narrow authenticated RPCs with signed private photos.
+- Keep category identifiers stable and labels/order in categories; every live picker reads that list and custom-category normalization stays in the sole matching module.
+- Only category_action may promote custom labels and migrate their items/wishes atomically; events carry category identifiers rather than typed labels.
+- Member profiles use a narrow shared-circle RPC with abbreviated names and writer-approved kind words; pickup and email preferences remain owner-only profile fields.

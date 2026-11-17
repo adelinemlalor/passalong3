@@ -4,7 +4,8 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { PhotoPicker } from "@/components/passalong/photo-picker";
 import { supabase } from "@/integrations/supabase/client";
-import { CATEGORIES, CONDITIONS, PICKUP_AREAS } from "@/lib/passalong/live-rules";
+import { CONDITIONS, PICKUP_AREAS } from "@/lib/passalong/live-rules";
+import { CategoryPicker } from "./category-picker";
 import { useLive } from "./context";
 import { NoCircle } from "./feed";
 import { Failure } from "./failure";
@@ -21,6 +22,7 @@ export function Post() {
     [uploading, setUploading] = useState(false),
     [failure, setFailure] = useState("");
   const [audience,setAudience] = useState(data.circles.map(circle=>circle.id));
+  const [customCategory,setCustomCategory]=useState("");
   if (!circleId) return <NoCircle />;
   async function review() {
     if(!audience.length)return;
@@ -47,6 +49,7 @@ export function Post() {
         description,
         condition,
         category,
+        custom_category:customCategory,
         pickup_area: area,
         photo_path: path,
       });
@@ -96,20 +99,7 @@ export function Post() {
             ))}
           </select>
         </label>
-        <label className="form-label">
-          Category
-          <select
-            required
-            className="text-input"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          >
-            <option value="">Choose category</option>
-            {CATEGORIES.map((c) => (
-              <option key={c}>{c}</option>
-            ))}
-          </select>
-        </label>
+        <CategoryPicker categories={data.categories} value={category} onChange={setCategory} custom={customCategory} onCustomChange={setCustomCategory}/>
         <label className="form-label">
           Pickup area
           <select
@@ -135,7 +125,7 @@ export function Post() {
           />
         </label>
         <fieldset className="grid gap-3"><legend className="form-label mb-3">Who can see it?</legend>{data.circles.map(circle=><label className="flex gap-3 items-center" key={circle.id}><input type="checkbox" checked={audience.includes(circle.id)} onChange={e=>setAudience(old=>e.target.checked?[...old,circle.id]:old.filter(id=>id!==circle.id))}/>{circle.name}</label>)}{!audience.length&&<p role="alert">Choose at least one circle.</p>}</fieldset>
-        <Button type="submit" disabled={!image || !audience.length || busy}>
+        <Button type="submit" disabled={!image || !category || !audience.length || busy}>
           Post
         </Button>
       </form>

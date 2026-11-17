@@ -41,3 +41,10 @@ export const circleAction = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return result as { id?: string; status?: string };
   });
+export interface MemberProfile {id:string;display_name:string;avatar_url:string|null;photo:string;bio:string;general_area:string;passed_along:number;shared_circles:{id:string;name:string}[];kind_words:{id:string;text:string;writer_name:string}[]}
+export const getMemberProfile=createServerFn({method:"POST"}).middleware([requireSupabaseAuth]).inputValidator(z.object({id:z.string().uuid(),memberId:z.string().uuid()})).handler(async({data,context})=>{
+  const result=await context.supabase.rpc("member_profile",{member:data.memberId,circle:data.id});if(result.error)throw new Error("This profile is private.");if(!result.data)return null;
+  const profile=result.data as unknown as MemberProfile;
+  const {supabaseAdmin}=await import("@/integrations/supabase/client.server");const photo=profile.avatar_url?.startsWith(`${profile.id}/`)?await supabaseAdmin.storage.from("item-photos").createSignedUrl(profile.avatar_url,3600):null;
+  return {...profile,photo:photo?.data?.signedUrl??""};
+});

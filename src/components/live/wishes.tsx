@@ -2,13 +2,15 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Heart, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CATEGORIES } from "@/lib/passalong/live-rules";
+import { CategoryPicker } from "./category-picker";
+import { categoryLabel } from "@/lib/passalong/category-rules";
 import { useLive } from "./context";
 import { EmptyCircle, NoCircle, ItemCard, available } from "./feed";
 export function WishForm({ limit }: { limit?: number }) {
   const { data, circleId, act, busy } = useLive();
   const [text, setText] = useState(""),
     [category, setCategory] = useState("");
+  const [customCategory,setCustomCategory]=useState("");
   const wishes = data.wishes.filter((w) => w.circle_id === circleId);
   return (
     <>
@@ -16,9 +18,10 @@ export function WishForm({ limit }: { limit?: number }) {
         className="live-wish-form"
         onSubmit={async (e) => {
           e.preventDefault();
-          await act("wish", { circle_id: circleId, text, category });
+          await act("wish", { circle_id: circleId, text, category,custom_category:customCategory });
           setText("");
           setCategory("");
+          setCustomCategory("");
         }}
       >
         <label className="form-label">
@@ -32,21 +35,8 @@ export function WishForm({ limit }: { limit?: number }) {
             onChange={(e) => setText(e.target.value)}
           />
         </label>
-        <label className="form-label">
-          Category
-          <select
-            required
-            className="text-input"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          >
-            <option value="">Choose category</option>
-            {CATEGORIES.map((c) => (
-              <option key={c}>{c}</option>
-            ))}
-          </select>
-        </label>
-        <Button type="submit" disabled={busy || (limit !== undefined && wishes.length >= limit)}>
+        <CategoryPicker categories={data.categories} value={category} onChange={setCategory} custom={customCategory} onCustomChange={setCustomCategory}/>
+        <Button type="submit" disabled={busy || !category || (limit !== undefined && wishes.length >= limit)}>
           <Heart />
           Add wish
         </Button>
@@ -56,7 +46,7 @@ export function WishForm({ limit }: { limit?: number }) {
           <div className="live-wish-row" key={w.id}>
             <div>
               <strong>{w.text}</strong>
-              <p className="text-sm text-muted-foreground">{w.category}</p>
+              <p className="text-sm text-muted-foreground">{categoryLabel(w.category,w.custom_category,data.categories)}</p>
             </div>
             <Button
               variant="ghost"

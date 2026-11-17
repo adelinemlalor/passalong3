@@ -57,6 +57,13 @@
       "when": 1794895880241,
       "tag": "0007_multi_circle_membership",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794897090509,
+      "tag": "0008_managed_categories_full_profiles",
+      "breakpoints": true
     }
   ]
 }

@@ -3,7 +3,8 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { Copy, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { CATEGORIES } from "@/lib/passalong/live-rules";
+import { categoryLabel } from "@/lib/passalong/category-rules";
+import { CategoryPicker } from "./category-picker";
 import { useLive } from "./context";
 import { available } from "./feed";
 import { ConditionDisclosure, InvalidLink } from "./failure";
@@ -16,6 +17,7 @@ export function MemberDetail({ id }: { id: string }) {
     [title, setTitle] = useState(item?.title ?? ""),
     [category, setCategory] = useState(item?.category ?? ""),
     [missed, setMissed] = useState(false);
+  const [customCategory,setCustomCategory]=useState(item?.custom_category??"");
   useEffect(() => {
     if (item && !seen.current) {
       seen.current = true;
@@ -56,7 +58,7 @@ export function MemberDetail({ id }: { id: string }) {
           <p className="eyebrow">{data.circles.filter((c) => item.circle_ids.includes(c.id)).map(c=>c.name).join(" · ")}</p>
           <h1>{item.title}</h1>
           <p className="text-sm text-muted-foreground">
-            {item.condition} · {item.category}
+            {item.condition} · {categoryLabel(item.category,item.custom_category,data.categories)}
           </p>
           <ConditionDisclosure />
           {item.description && <p className="detail-description">{item.description}</p>}
@@ -156,7 +158,7 @@ export function MemberDetail({ id }: { id: string }) {
               className="grid gap-3 mt-5"
               onSubmit={async (e) => {
                 e.preventDefault();
-                await act("edit_item", { item_id: id, title, category });
+                await act("edit_item", { item_id: id, title, category,custom_category:customCategory });
                 setEditing(false);
               }}
             >
@@ -170,18 +172,7 @@ export function MemberDetail({ id }: { id: string }) {
                   onChange={(e) => setTitle(e.target.value)}
                 />
               </label>
-              <label className="form-label">
-                Category
-                <select
-                  className="text-input"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                >
-                  {CATEGORIES.map((c) => (
-                    <option key={c}>{c}</option>
-                  ))}
-                </select>
-              </label>
+              <CategoryPicker categories={data.categories} value={category} onChange={setCategory} custom={customCategory} onCustomChange={setCustomCategory}/>
               <Button type="submit" disabled={busy}>
                 Save changes
               </Button>
