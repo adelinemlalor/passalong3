@@ -25,7 +25,7 @@ export function Chat({id}:{id:string}) {
  const unread=chat.data?.messages.some(m=>m.sender_id!==data.userId&&!m.seen_at);
  useEffect(()=>{if(!unread)return;const mark=()=>{if(document.visibilityState==='visible')void read({data:{action:'read_chat',payload:{claim_id:id}}}).catch(()=>{});};mark();document.addEventListener('visibilitychange',mark);return()=>document.removeEventListener('visibilitychange',mark);},[id,unread,chat.dataUpdatedAt,read]);
  useEffect(()=>{end.current?.scrollIntoView({block:'nearest'});},[chat.data?.messages.length]);
- if(!claim||!item)return <div className="empty-state"><h1>This conversation is private</h1></div>;
+ if(!claim||!item)return <div className="empty-state"><MessageCircle size={32}/><h1>This conversation is private</h1><p>Your own pickup chats are waiting in Messages.</p><Button asChild variant="outline"><Link to="/messages">My messages</Link></Button></div>;
  const own=item.giver_id===data.userId,other=data.people.find(p=>p.id===(own?claim.receiver_id:item.giver_id));
  const circle=data.circles.find(c=>item.circle_ids.includes(c.id)&&data.people.some(p=>p.id===other?.id&&p.circle_id===c.id));
  const current=['claimed','pickup_arranged','picked_up','thanked'].indexOf(claim.status),active=current>=0&&current<2&&new Date(claim.pickup_by)>new Date();

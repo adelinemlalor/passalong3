@@ -11,6 +11,7 @@ import { categoryLabel } from "@/lib/passalong/category-rules";
 import { getAdminMetrics, getSynonyms, getAdminMembers } from "@/lib/passalong/live.functions";
 import { useLive } from "./context";
 interface Metrics {
+  replies:{week:string;claims:number;replied_within_24h:number|null}[];
   counts: { week: string; name: string; count: number }[];
   outcomes: {
     week: string;
@@ -49,7 +50,7 @@ export function Admin() {
       </div>
     );
   const m = metrics.data as unknown as Metrics | undefined;
-  const weeks = Array.from(new Set(m?.counts.map((c) => c.week) ?? []));
+  const weeks = Array.from(new Set([...(m?.counts.map((c) => c.week) ?? []),...(m?.replies?.map(r=>r.week)??[])]));
   return (
     <div className="live-admin">
       <h1>Circle admin</h1>
@@ -60,7 +61,7 @@ export function Admin() {
         <Button asChild className="mt-4"><Link to="/start-circle">Start a circle</Link></Button>
       </section>
       <section className="live-section">
-        <h2>Weekly activity</h2>
+        <h2>Weekly activity</h2><p className="section-intro">Test-circle activity is excluded. Reply rates include claims at least 24 hours old; a giver’s message, time suggestion or pickup spot counts as a reply. Email delivery is off.</p>
         {metrics.isPending ? (
           <p>Loading counts…</p>
         ) : metrics.error ? (
@@ -80,7 +81,7 @@ export function Admin() {
                     </tr>
                   </thead>
                   <tbody>
-                    {EVENT_NAMES.map((event) => (
+                    {[...EVENT_NAMES,"claim_email_sent","message_email_sent"].map((event) => (
                       <tr key={event}>
                         <td>{event.replaceAll("_", " ")}</td>
                         <td>
@@ -91,6 +92,7 @@ export function Admin() {
                   </tbody>
                 </table>
               </div>
+              <p className="mt-3 text-sm">Claims where the giver replied within 24 hours: {m?.replies?.find(r=>r.week===week)?.replied_within_24h ?? "—"}%</p>
               <p className="mt-3 text-sm">
                 Weekly active members: {m?.active.find((a) => a.week === week)?.members ?? 0}
               </p>

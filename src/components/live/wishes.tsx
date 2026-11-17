@@ -42,6 +42,7 @@ export function WishForm({ limit }: { limit?: number }) {
         </Button>
       </form>
       <div>
+        {!wishes.length&&<div className="empty-state"><Heart size={32}/><h3>A little wish goes a long way</h3><p>What would be useful to you? Add your first wish above.</p></div>}
         {wishes.map((w) => (
           <div className="live-wish-row" key={w.id}>
             <div>

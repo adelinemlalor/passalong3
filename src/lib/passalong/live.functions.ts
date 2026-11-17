@@ -73,6 +73,7 @@ export const getLiveData = createServerFn({ method: "POST" })
       s.from("categories").select("*").order("position"),
       s.from("kind_words").select("*").eq("giver_id",context.userId).eq("show_on_profile",true),
       s.from("messages").select("*").order("created_at"),
+      s.rpc("home_activity"),
     ]);
     for (const result of results) if (result.error) throw new Error(result.error.message);
     const [
@@ -91,6 +92,7 @@ export const getLiveData = createServerFn({ method: "POST" })
       categories,
       kindWords,
       chatMessages,
+      homeActivity,
     ] = results;
     const circleRows = (circles.data ?? []) as unknown as CircleSummary[];
     const peopleResults = await Promise.all(
@@ -115,6 +117,7 @@ export const getLiveData = createServerFn({ method: "POST" })
       ? await s.storage.from("item-photos").createSignedUrl(avatarPath, 3600)
       : null;
     return {
+      homeActivity: (homeActivity.data ?? {posted:[],completed:[],members:[]}) as unknown as {posted:{id:string;circle_ids:string[]}[];completed:{id:string;circle_ids:string[];picked_up_at:string|null}[];members:{user_id:string;circle_ids:string[]}[]},
       profile: profile.data,
       avatarPhoto: avatar?.data?.signedUrl ?? "",
       circles: signedCircles,
@@ -224,7 +227,9 @@ export const getAdminMetrics = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase.rpc("admin_metrics");
     if (error) throw new Error(error.message);
-    return data;
+    const replies=await context.supabase.rpc("admin_reply_metrics");
+    if(replies.error)throw new Error(replies.error.message);
+    return {...(data as Record<string,unknown>),replies:replies.data};
   });
 export const getSynonyms = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

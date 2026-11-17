@@ -25,6 +25,9 @@ export function Post() {
   const [audience,setAudience] = useState(data.circles.map(circle=>circle.id));
   const [customCategory,setCustomCategory]=useState("");
   const [pickupStyle,setPickupStyle]=useState("");
+  const [step,setStep]=useState(1);
+  const headings=["What’s ready for a second chapter?","Give it a little name","Where does it fit in?","How should they pick it up?","Who can see it?"];
+  const ready=[Boolean(image),Boolean(title.trim()&&condition),Boolean(category&&(category!=="other"||customCategory.trim())),Boolean(area&&pickupStyle),Boolean(audience.length)];
   if (!circleId) return <NoCircle />;
   async function review() {
     if(!audience.length)return;
@@ -68,17 +71,19 @@ export function Post() {
   return (
     <div className="flow-page live-form">
       <p className="eyebrow">PASS IT ON</p>
-      <h1>A new home for a good thing</h1>
-      <PhotoPicker image={image} onChange={setImage} />
+      <div className="post-progress"><span>{step} / 5</span><span>A new home starts here</span></div>
+      <div className="step-indicators" role="progressbar" aria-label="Posting progress" aria-valuemin={1} aria-valuemax={5} aria-valuenow={step}>{headings.map((heading,index)=><span key={heading} className={index<step?"done":""}/>)}</div>
+      <h1>{headings[step-1]}</h1>
+      {step===1 && <><p className="section-intro">A photo of your item, just as it is.</p><PhotoPicker image={image} onChange={setImage} /></>}
       {failure && <Failure message={failure} retry={() => { void publish(); }} />}
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          void review();
+          if(step<5)setStep(old=>old+1);else void review();
         }}
         className="grid gap-5 mt-6"
       >
-        <label className="form-label">
+        {step===2 && <><label className="form-label">
           Title
           <input
             required
@@ -102,7 +107,19 @@ export function Post() {
             ))}
           </select>
         </label>
-        <CategoryPicker categories={data.categories} value={category} onChange={setCategory} custom={customCategory} onCustomChange={setCustomCategory}/>
+        <label className="form-label">
+          Your own description (optional)
+          <textarea
+            maxLength={2000}
+            rows={3}
+            className="text-input"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </label>
+        </>}
+        {step===3 && <CategoryPicker categories={data.categories} value={category} onChange={setCategory} custom={customCategory} onCustomChange={setCustomCategory}/>}
+        {step===4 && <>
         <label className="form-label">
           Pickup area
           <select
@@ -118,20 +135,10 @@ export function Post() {
           </select>
         </label>
         <fieldset className="grid gap-3"><legend className="form-label mb-3">Pickup style</legend><div className="flex flex-wrap gap-2">{PICKUP_STYLES.map(style=><Button key={style} type="button" variant={pickupStyle===style?"default":"outline"} aria-pressed={pickupStyle===style} onClick={()=>setPickupStyle(style)}>{style}</Button>)}</div></fieldset>
-        <label className="form-label">
-          Your own description (optional)
-          <textarea
-            maxLength={2000}
-            rows={3}
-            className="text-input"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </label>
-        <fieldset className="grid gap-3"><legend className="form-label mb-3">Who can see it?</legend>{data.circles.map(circle=><label className="flex gap-3 items-center" key={circle.id}><input type="checkbox" checked={audience.includes(circle.id)} onChange={e=>setAudience(old=>e.target.checked?[...old,circle.id]:old.filter(id=>id!==circle.id))}/>{circle.name}</label>)}{!audience.length&&<p role="alert">Choose at least one circle.</p>}</fieldset>
-        <Button type="submit" disabled={!image || !category || !pickupStyle || !audience.length || busy}>
-          Post
-        </Button>
+        <p className="section-intro">General area only. You choose whether to share an exact spot privately after a claim.</p></>}
+        {step===5 && <><div className="post-preview"><img src={image} alt={title}/><div><h2>{title}</h2><p>{condition} · {pickupStyle} · {area}</p></div></div>
+        <fieldset className="grid gap-3"><legend className="form-label mb-3">Who can see it?</legend>{data.circles.map(circle=><label className="flex gap-3 items-center" key={circle.id}><input type="checkbox" checked={audience.includes(circle.id)} onChange={e=>setAudience(old=>e.target.checked?[...old,circle.id]:old.filter(id=>id!==circle.id))}/>{circle.name}</label>)}{!audience.length&&<p role="alert">Choose at least one circle.</p>}</fieldset></>}
+        <div className="flex gap-3">{step>1 && <Button type="button" variant="outline" disabled={busy||uploading} onClick={()=>setStep(old=>old-1)}>Back</Button>}<Button className="flex-1" type="submit" disabled={!ready[step-1] || busy || uploading}>{step===5?"Post":"Continue"}</Button></div>
       </form>
       {nudge && (
         <div className="modal-backdrop">

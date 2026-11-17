@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Copy, MapPin } from "lucide-react";
+import { Copy, MapPin, UserRound, PackageOpen } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { categoryLabel } from "@/lib/passalong/category-rules";
 import { CategoryPicker } from "./category-picker";
 import { useLive } from "./context";
-import { available } from "./feed";
+import { available, ItemCard } from "./feed";
+import { moreLike } from "@/lib/passalong/home-rules";
+import { getMemberProfile } from "@/lib/passalong/circles.functions";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { ConditionDisclosure, InvalidLink } from "./failure";
 export function MemberDetail({ id }: { id: string }) {
   const { data, act, busy } = useLive(),
@@ -17,6 +21,9 @@ export function MemberDetail({ id }: { id: string }) {
     [title, setTitle] = useState(item?.title ?? ""),
     [category, setCategory] = useState(item?.category ?? ""),
     [missed, setMissed] = useState(false);
+  const memberFn=useServerFn(getMemberProfile);
+  const sharedCircle=item?.circle_ids.find(cid=>data.circles.some(c=>c.id===cid));
+  const profile=useQuery({queryKey:["item-giver",data.userId,item?.giver_id,sharedCircle],queryFn:()=>sharedCircle&&item?memberFn({data:{id:sharedCircle,memberId:item.giver_id}}):null,enabled:Boolean(sharedCircle&&item)});
   const [customCategory,setCustomCategory]=useState(item?.custom_category??"");
   useEffect(() => {
     if (item && !seen.current) {
@@ -72,11 +79,12 @@ export function MemberDetail({ id }: { id: string }) {
             </div>
             <div>
               <span>
-                <small>Given by</small>
+                <small>Posted by</small>
                 {own ? "You" : (person?.display_name ?? "Circle member")}
               </span>
             </div>
           </div>
+          <div className="giver-panel">{person?.photo?<img className="avatar" src={person.photo} alt={person.display_name}/>:<UserRound className="text-primary" size={36}/>}<div><strong>Posted by {own?"You":person?.display_name??"Circle member"}</strong>{profile.data?.bio && <p>{profile.data.bio.split(/\r?\n/)[0]}</p>}{sharedCircle&&person&&<Button asChild variant="link" className="p-0"><Link to="/c/$id/member/$memberId" params={{id:sharedCircle,memberId:person.id}}>View profile</Link></Button>}{profile.isError&&<Button variant="link" onClick={()=>profile.refetch()}>Try loading profile again</Button>}</div></div>
           <p className="text-xs text-muted-foreground">The giver shares the exact spot in the chat after you claim, if they choose.</p>
           <div className="grid gap-3 mt-6">
             {own ? (
@@ -181,6 +189,7 @@ export function MemberDetail({ id }: { id: string }) {
           )}
         </section>
       </div>
+      <section className="live-section"><h2>More like this</h2><p className="section-intro">Another good find in your shared circles.</p>{moreLike(item,data.items).length?<div className="live-grid">{moreLike(item,data.items).map(other=><ItemCard key={other.id} item={other}/>)}</div>:<div className="empty-state"><PackageOpen size={32}/><p>No similar items just yet. There may be something good in another category.</p><Button asChild variant="outline"><Link to="/browse">Browse your circles</Link></Button></div>}</section>
     </div>
   );
 }

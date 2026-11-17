@@ -1,3 +1,4 @@
+import { Bell, Heart, PackageOpen } from "lucide-react";
 import { useState } from "react";
 import { Link,useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
@@ -128,7 +129,7 @@ export function Profile() {
       <section className="live-section">
         <h2 className="mb-4 font-semibold">Passed along</h2>
         {!history.length ? (
-          <p className="text-muted-foreground text-sm">Your picked-up items will appear here.</p>
+          <div className="empty-state"><Heart size={32}/><p>Your first new home is still ahead. Picked-up items will appear here.</p><Button asChild variant="outline"><Link to="/browse">Find something useful</Link></Button></div>
         ) : (
           <div className="live-grid">
             {history.map((c) => {
@@ -147,6 +148,7 @@ export function Profile() {
       </section>
       <section className="live-section">
         <h2 className="mb-4 font-semibold">My posts</h2>
+        {!own.length&&<div className="empty-state"><PackageOpen size={32}/><p>A good thing in your cupboard could be someone’s next find.</p><Button asChild><Link to="/post">Post your first item</Link></Button></div>}
         <div className="live-grid">
           {own.map((item) => (
             <ItemCard key={item.id} item={item} />
@@ -175,7 +177,7 @@ export function Notifications() {
       </div>
       {!data.notifications.length ? (
         <div className="empty-state">
-          <h3>All quiet for now</h3>
+          <Bell size={32}/><h3>All quiet for now</h3><p>Your circle’s good news will show up here.</p><Button asChild variant="outline"><Link to="/browse">See what’s new</Link></Button>
         </div>
       ) : (
         data.notifications.map((n) => {

@@ -31,3 +31,6 @@
 - Member profiles use a narrow shared-circle RPC with abbreviated names and writer-approved kind words; pickup and email preferences remain owner-only profile fields.
 - Chat actions lock claims and require active participants; time cards require the other participant's explicit confirmation, and data-free private doorbells only invalidate authenticated reads.
 - Pickup suggestions use Los Angeles local time in pickup-rules; calendar exports contain title/time only, and private spot text never enters analytics.
+
+- Home activity uses an authenticated aggregate across active item audiences and deduplicates shared items and members; completed timestamps come from claims, not item post dates.
+- Admin reply rates count mature claims only and inspect sender/timestamps without exporting message text; this avoids penalizing claims before their reply window ends.

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { mainWord } from "@/lib/passalong/live-rules";
 import { categoryLabel } from "@/lib/passalong/category-rules";
+import { endingSoon, greeting, postedAgo, FOUND_HOME_LIMIT } from "@/lib/passalong/home-rules";
 import { CategoryPicker } from "./category-picker";
 import { useLive, type LiveItem } from "./context";
 export function available(item: LiveItem) {
@@ -32,6 +33,8 @@ export function ItemCard({ item, reason }: { item: LiveItem; reason?: string | u
           {item.pickup_style && `${item.pickup_style} · `}{item.pickup_area}
         </p>
         <p className="text-xs text-muted-foreground">The giver shares the exact spot in the chat after you claim, if they choose.</p>
+        <p className="text-xs text-muted-foreground">{data.circles.filter(c=>item.circle_ids.includes(c.id)).map(c=>c.name).join(" · ")}</p>
+        <p className="text-xs text-muted-foreground">{postedAgo(item.created_at)}</p>
         {reason && (
           <p className="live-match">
             <Heart size={14} />
@@ -90,8 +93,15 @@ function rank(items: LiveItem[], all: LiveItem[]) {
 }
 export function Feed({ browse = false, initialCategory }: { browse?: boolean; initialCategory?: string | undefined }) {
   const { data, circleId, circleFilter, setCircleId, act, busy } = useLive();
+  const navigate=useNavigate();
   const [search, setSearch] = useState(""),
-    [category, setCategory] = useState(initialCategory ?? "All");
+    [localCategory, setCategory] = useState("All");
+  const category=initialCategory ?? localCategory;
+  const scoped=(ids:string[])=>!circleFilter||ids.includes(circleFilter);
+  const completed=data.homeActivity.completed.filter(row=>scoped(row.circle_ids));
+  const found=completed.slice(0,FOUND_HOME_LIMIT).flatMap(row=>{const item=data.items.find(i=>i.id===row.id);return item?[item]:[];});
+  const month=new Intl.DateTimeFormat("en-CA",{timeZone:"America/Los_Angeles",year:"numeric",month:"2-digit"});
+  const passedThisMonth=completed.filter(row=>row.picked_up_at&&month.format(new Date(row.picked_up_at))===month.format(new Date())).length;
   if (!circleId) return <NoCircle />;
   const circle = data.circles.find((c) => c.id === circleFilter);
   const items = rank(
@@ -120,10 +130,9 @@ export function Feed({ browse = false, initialCategory }: { browse?: boolean; in
       <div className="live-heading">
         <div>
           <p className="eyebrow">{circle?.name ?? "All my circles"}</p>
-          <h1>{browse ? "Browse your circle" : "Good things, passed along"}</h1>
+          <h1>{browse ? "Browse your circles" : greeting(data.profile?.display_name??"")}</h1>
           <p>
-            {items.length} {items.length === 1 ? "thing is" : "things are"} available in your circle
-            right now
+            {browse ? `${items.length} good things waiting for a second chapter` : "A little less clutter. A little more connection."}
           </p>
         </div>
         <Button asChild variant="outline">
@@ -134,6 +143,68 @@ export function Feed({ browse = false, initialCategory }: { browse?: boolean; in
         </Button>
       </div>
       <label className="form-label mb-5">Circle filter<select className="text-input" aria-label="Filter items by circle" value={circleFilter} onChange={e=>setCircleId(e.target.value)}><option value="">All my circles</option>{data.circles.map(c=><option value={c.id} key={c.id}>{c.name}</option>)}</select></label>
+      {!browse && matched.length > 0 && (
+        <section className="live-section">
+          <div className="section-label">
+            <h2>Matched for you</h2>
+            <Button variant="link" asChild>
+              <Link to="/wishlist">My wishes</Link>
+            </Button>
+          </div>
+          <div className="live-grid">
+            {matched.map(({ item, wish }) => (
+              <ItemCard key={item.id} item={item} reason={wish?.text} />
+            ))}
+          </div>
+        </section>
+      )}
+      {!browse && !matched.length && <section className="live-section empty-state"><h2>Matched for you</h2><Heart size={32}/><p>Your next good find is still on its way. Add a wish, or take a look around.</p><div className="flex flex-wrap justify-center gap-3 mt-4"><Button asChild><Link to="/browse">Browse</Link></Button><Button asChild variant="outline"><Link to="/wishlist">Edit wishlist</Link></Button></div></section>}
+      {!browse && <nav aria-label="Browse categories" className="category-scroll home-categories">{data.categories.map(c=><Button key={c.key} variant="outline" className="category-chip" onClick={()=>navigate({to:"/browse",search:{category:c.key}})}>{c.name}</Button>)}</nav>}
+      <section className="live-section">
+        <div className="section-label">
+          <h2>{browse ? "Available items" : "New in your circles"}</h2>
+          <Button asChild variant="link">
+            <Link to="/wishlist">
+              <Heart />
+              My wishes
+            </Link>
+          </Button>
+        </div>
+        {browse && <><label className="live-search">
+          <Search size={18} />
+          <input
+            aria-label="Search items"
+            placeholder="Search items"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </label>
+        <div className="category-scroll">
+          {[{key:"All",name:"All"}, ...data.categories].map((c) => (
+            <Button
+              key={c.key}
+              variant="outline"
+              aria-pressed={c.key===category}
+              className={`category-chip ${c.key === category ? "category-active" : ""}`}
+              onClick={() => { setCategory(c.key); void navigate({to:"/browse",search:{category:c.key}}); }}
+            >
+              {c.name}
+            </Button>
+          ))}
+        </div>
+        </>}
+        {items.length === 0 ? (
+          <EmptyCircle />
+        ) : filtered.length === 0 ? (
+          <div className="empty-state"><Search size={32}/><h3>Nothing here just yet</h3><p>Try another category or clear your search.</p><Button variant="outline" onClick={()=>{setSearch("");setCategory("All");void navigate({to:"/browse",search:{category:"All"}});}}>Show all items</Button></div>
+        ) : (
+          <div className={browse?"live-grid":"live-grid home-grid"}>
+            {filtered.map((item) => (
+              <ItemCard key={item.id} item={item} />
+            ))}
+          </div>
+        )}
+      </section>
       {!browse && data.profile?.clearout_choice === null && (
         <aside className="clearout-card">
           <p>
@@ -150,66 +221,12 @@ export function Feed({ browse = false, initialCategory }: { browse?: boolean; in
           </div>
         </aside>
       )}
-      {!browse && matched.length > 0 && (
-        <section className="live-section">
-          <div className="section-label">
-            <h2>Matched for you</h2>
-            <Button variant="link" asChild>
-              <Link to="/wishlist">My wishes</Link>
-            </Button>
-          </div>
-          <div className="live-grid">
-            {matched.map(({ item, wish }) => (
-              <ItemCard key={item.id} item={item} reason={wish?.text} />
-            ))}
-          </div>
-        </section>
-      )}
-      {!browse && !matched.length && <section className="live-section empty-state"><h2>No matches yet</h2><p>Nothing in your circle matches your wishlist yet. New items show up in Browse and Swipe as soon as they're posted.</p><div className="flex flex-wrap justify-center gap-3 mt-4"><Button asChild><Link to="/browse">Browse</Link></Button><Button asChild variant="outline"><Link to="/wishlist">Edit wishlist</Link></Button></div></section>}
-      <section className="live-section">
-        <div className="section-label">
-          <h2>{browse ? "Available items" : "New in your circle"}</h2>
-          <Button asChild variant="link">
-            <Link to="/wishlist">
-              <Heart />
-              My wishes
-            </Link>
-          </Button>
-        </div>
-        <label className="live-search">
-          <Search size={18} />
-          <input
-            aria-label="Search items"
-            placeholder="Search items"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </label>
-        <div className="category-scroll">
-          {[{key:"All",name:"All"}, ...data.categories].map((c) => (
-            <Button
-              key={c.key}
-              variant="outline"
-              aria-pressed={c.key===category}
-              className={`category-chip ${c.key === category ? "category-active" : ""}`}
-              onClick={() => setCategory(c.key)}
-            >
-              {c.name}
-            </Button>
-          ))}
-        </div>
-        {items.length === 0 ? (
-          <EmptyCircle />
-        ) : filtered.length === 0 ? (
-          <p className="empty-state">No items match your search.</p>
-        ) : (
-          <div className="live-grid">
-            {filtered.map((item) => (
-              <ItemCard key={item.id} item={item} />
-            ))}
-          </div>
-        )}
-      </section>
+      {!browse && <>
+        <section className="live-section"><h2>Ending soon</h2><p className="section-intro">One last look before these good things move on.</p>{items.some(i=>endingSoon(i))?<div className="live-grid home-grid">{items.filter(i=>endingSoon(i)).map(item=><ItemCard item={item} key={item.id}/>)}</div>:<div className="empty-state"><PackageOpen size={32}/><p>Nothing is ending soon. There’s still time to find your next good thing.</p><Button asChild variant="outline"><Link to="/browse">Take a look around</Link></Button></div>}</section>
+        <section className="live-section"><h2>Recently found a home</h2><p className="section-intro">Small things, new chapters.</p>{found.length?<div className="found-grid">{found.map(item=><article key={item.id} className="found-card"><img src={item.photo_url} alt={item.title}/><h3>{item.title} found a new home</h3></article>)}</div>:<div className="empty-state"><Heart size={32}/><p>The first new home is still to come.</p><Button asChild variant="outline"><Link to="/post">Pass something along</Link></Button></div>}</section>
+        <section className="live-section"><h2>This month in your circles</h2><dl className="month-counts"><div><dd>{data.homeActivity.posted.filter(row=>scoped(row.circle_ids)).length}</dd><dt>Items posted</dt></div><div><dd>{passedThisMonth}</dd><dt>Items passed along</dt></div><div><dd>{data.homeActivity.members.filter(row=>scoped(row.circle_ids)).length}</dd><dt>Members</dt></div></dl></section>
+        <section className="live-section post-invitation"><PackageOpen size={36}/><div><h2>Have something to pass along?</h2><p>A little space for you. A good find for someone else.</p></div><Button asChild><Link to="/post"><Plus size={16}/>Post</Link></Button></section>
+      </>}
     </div>
   );
 }

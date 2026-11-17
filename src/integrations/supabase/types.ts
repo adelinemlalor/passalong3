@@ -879,6 +879,7 @@ export type Database = {
         }[]
       }
       admin_metrics: { Args: never; Returns: Json }
+      admin_reply_metrics: { Args: never; Returns: Json }
       apply_matches: {
         Args: { expected: number; pairs: Json }
         Returns: boolean
@@ -908,6 +909,7 @@ export type Database = {
       custom_category_key: { Args: { t: string }; Returns: string }
       find_circles: { Args: never; Returns: Json }
       has_item_access: { Args: { item: string }; Returns: boolean }
+      home_activity: { Args: never; Returns: Json }
       invite_preview: {
         Args: { token: string }
         Returns: {

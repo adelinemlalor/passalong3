@@ -1,4 +1,5 @@
 # Passalong
+- [x] Part 6D: warm real-data Home, richer cards/details, five-step posting, weekly reply metric; verified real post-to-thanks, member-only access and phone/desktop; email stays off.
 - [x] Complete Part 6C pickup styles, live private chat, explicit time/spot sharing, calendar, thanks and in-app alerts; exclude email and push for now.
 - [x] Add Part 6B database-managed categories, custom-category matching and promotion, fuller profiles and private member views.
 - [x] Verify category chips, custom matching, admin edits, profile settings and phone/desktop flows; temporary records removed.
