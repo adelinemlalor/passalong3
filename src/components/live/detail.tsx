@@ -77,14 +77,8 @@ export function MemberDetail({ id }: { id: string }) {
                 {item.pickup_style && `${item.pickup_style} · `}{item.pickup_area}
               </span>
             </div>
-            <div>
-              <span>
-                <small>Posted by</small>
-                {own ? "You" : (person?.display_name ?? "Circle member")}
-              </span>
-            </div>
           </div>
-          <div className="giver-panel">{person?.photo?<img className="avatar" src={person.photo} alt={person.display_name}/>:<UserRound className="text-primary" size={36}/>}<div><strong>Posted by {own?"You":person?.display_name??"Circle member"}</strong>{profile.data?.bio && <p>{profile.data.bio.split(/\r?\n/)[0]}</p>}{sharedCircle&&person&&<Button asChild variant="link" className="p-0"><Link to="/c/$id/member/$memberId" params={{id:sharedCircle,memberId:person.id}}>View profile</Link></Button>}{profile.isError&&<Button variant="link" onClick={()=>profile.refetch()}>Try loading profile again</Button>}</div></div>
+          <div className="giver-panel">{person?.photo?<img className="avatar" src={person.photo} alt={person.display_name}/>:<UserRound className="text-primary" size={36}/>}<div><strong className="block">Posted by {person?.display_name??"Circle member"}</strong>{profile.data?.bio && <p>{profile.data.bio.split(/\r?\n/)[0]}</p>}{sharedCircle&&person&&<Button asChild variant="link" className="p-0"><Link to="/c/$id/member/$memberId" params={{id:sharedCircle,memberId:person.id}}>View profile</Link></Button>}{profile.isError&&<Button variant="link" onClick={()=>profile.refetch()}>Try loading profile again</Button>}</div></div>
           <p className="text-xs text-muted-foreground">The giver shares the exact spot in the chat after you claim, if they choose.</p>
           <div className="grid gap-3 mt-6">
             {own ? (
