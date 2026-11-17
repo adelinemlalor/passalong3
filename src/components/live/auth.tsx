@@ -132,7 +132,8 @@ export function Auth({ next = "/" }: { next?: string }) {
             </form>
           </>
         )}
-        <p className="live-auth-foot">Useful things. Your trusted circle. A little less clutter.</p>
+        <p className="live-auth-foot">Haas FTMBA 2027 requires a verified @berkeley.edu email.</p>
+        <Button variant="link" asChild><Link to="/how-it-works">How Passalong works & what we record</Link></Button>
       </div>
     </div>
   );

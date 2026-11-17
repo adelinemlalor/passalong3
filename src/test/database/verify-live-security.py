@@ -4,10 +4,10 @@ users=[];rows=[];sessions=[]
 def call(path,body,h):return requests.post(B+'/rest/v1/rpc/'+path,headers=h,json=body)
 try:
  for n in range(3):
-  email='passalong-rules-'+secrets.token_hex(6)+'@example.com';password=secrets.token_urlsafe(24)
+  email='passalong-rules-'+secrets.token_hex(6)+'@berkeley.edu';password=secrets.token_urlsafe(24)
   r=requests.post(B+'/auth/v1/admin/users',headers=H,json={'email':email,'password':password,'email_confirm':True});r.raise_for_status();users.append(r.json()['id'])
   r=requests.post(B+'/auth/v1/token?grant_type=password',headers={'apikey':P},json={'email':email,'password':password});r.raise_for_status();sessions.append({'apikey':P,'Authorization':'Bearer '+r.json()['access_token'],'Content-Type':'application/json'})
- c=requests.get(B+'/rest/v1/circles?select=id,invite_token',headers=H).json()[0]
+ c=requests.get(B+'/rest/v1/circles?select=id,invite_token&name=eq.Haas%20FTMBA%202027',headers=H).json()[0]
  for h in sessions[:2]:call('passalong_action',{'action':'join','payload':{'token':c['invite_token']}},h).raise_for_status()
  r=requests.post(B+'/rest/v1/items',headers={**H,'Prefer':'return=representation'},json={'circle_id':c['id'],'giver_id':users[0],'title':'Seedlings','condition':'Good','category':'Garden','pickup_area':'Near campus','photo_path':'verification/no-photo','expires_at':'2026-11-16T00:00:00Z'});r.raise_for_status();item=r.json()[0];rows.append(item['id'])
  # Expired timestamps are already unclaimable before the hourly job runs.

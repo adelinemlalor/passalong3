@@ -50,35 +50,14 @@ export const EVENT_NAMES = [
   "clearout_interest_no",
 ] as const;
 export type EventName = (typeof EVENT_NAMES)[number];
-export function words(text: string): string[] {
-  return text
-    .toLowerCase()
-    .split(/[^a-z0-9]+/)
-    .filter(Boolean)
-    .map((word) =>
-      word.endsWith("s") && word.length > 3 && !word.endsWith("ss") ? word.slice(0, -1) : word,
-    );
-}
+import { matchItemWish, words } from "@/lib/matching";
+export { words } from "@/lib/matching";
 export function matchesWish(
   item: { title: string; category: string },
   wish: { text: string; category: string },
   synonyms: { category: string; words: string[] }[],
 ): boolean {
-  if (item.category !== wish.category) return false;
-  const title = words(item.title),
-    phrase = words(wish.text);
-  return title.some((a) =>
-    phrase.some(
-      (b) =>
-        a === b ||
-        synonyms.some(
-          (group) =>
-            group.category === item.category &&
-            group.words.flatMap(words).includes(a) &&
-            group.words.flatMap(words).includes(b),
-        ),
-    ),
-  );
+  return matchItemWish(item, wish, synonyms).match;
 }
 export function mainWord(title: string) {
   return (

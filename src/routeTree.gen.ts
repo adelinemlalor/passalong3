@@ -13,11 +13,13 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DropRouteImport } from './routes/drop'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as TestSettingsRouteImport } from './routes/test-settings'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedBrowseRouteImport } from './routes/_authenticated/browse'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
+import { Route as AuthenticatedMatchTesterRouteImport } from './routes/_authenticated/match-tester'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedPostRouteImport } from './routes/_authenticated/post'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
@@ -54,6 +56,11 @@ const DropRoute = DropRouteImport.update({
   path: '/drop',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
@@ -79,6 +86,12 @@ const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMatchTesterRoute =
+  AuthenticatedMatchTesterRouteImport.update({
+    id: '/match-tester',
+    path: '/match-tester',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -168,11 +181,13 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/drop': typeof DropRoute
+  '/how-it-works': typeof HowItWorksRoute
   '/leaderboard': typeof LeaderboardRoute
   '/test-settings': typeof TestSettingsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/browse': typeof AuthenticatedBrowseRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/match-tester': typeof AuthenticatedMatchTesterRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/post': typeof AuthenticatedPostRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -194,11 +209,13 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/drop': typeof DropRoute
+  '/how-it-works': typeof HowItWorksRoute
   '/leaderboard': typeof LeaderboardRoute
   '/test-settings': typeof TestSettingsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/browse': typeof AuthenticatedBrowseRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/match-tester': typeof AuthenticatedMatchTesterRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/post': typeof AuthenticatedPostRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -222,11 +239,13 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/drop': typeof DropRoute
+  '/how-it-works': typeof HowItWorksRoute
   '/leaderboard': typeof LeaderboardRoute
   '/test-settings': typeof TestSettingsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/browse': typeof AuthenticatedBrowseRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
+  '/_authenticated/match-tester': typeof AuthenticatedMatchTesterRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/post': typeof AuthenticatedPostRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
@@ -250,11 +269,13 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/drop'
+    | '/how-it-works'
     | '/leaderboard'
     | '/test-settings'
     | '/admin'
     | '/browse'
     | '/home'
+    | '/match-tester'
     | '/onboarding'
     | '/post'
     | '/profile'
@@ -276,11 +297,13 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/drop'
+    | '/how-it-works'
     | '/leaderboard'
     | '/test-settings'
     | '/admin'
     | '/browse'
     | '/home'
+    | '/match-tester'
     | '/onboarding'
     | '/post'
     | '/profile'
@@ -303,11 +326,13 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/drop'
+    | '/how-it-works'
     | '/leaderboard'
     | '/test-settings'
     | '/_authenticated/admin'
     | '/_authenticated/browse'
     | '/_authenticated/home'
+    | '/_authenticated/match-tester'
     | '/_authenticated/onboarding'
     | '/_authenticated/post'
     | '/_authenticated/profile'
@@ -331,6 +356,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   DropRoute: typeof DropRoute
+  HowItWorksRoute: typeof HowItWorksRoute
   LeaderboardRoute: typeof LeaderboardRoute
   TestSettingsRoute: typeof TestSettingsRoute
   CollectionsIdRoute: typeof CollectionsIdRoute
@@ -372,6 +398,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DropRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/leaderboard': {
       id: '/leaderboard'
       path: '/leaderboard'
@@ -405,6 +438,13 @@ declare module '@tanstack/react-router' {
       path: '/home'
       fullPath: '/home'
       preLoaderRoute: typeof AuthenticatedHomeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/match-tester': {
+      id: '/_authenticated/match-tester'
+      path: '/match-tester'
+      fullPath: '/match-tester'
+      preLoaderRoute: typeof AuthenticatedMatchTesterRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/onboarding': {
@@ -526,6 +566,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedBrowseRoute: typeof AuthenticatedBrowseRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
+  AuthenticatedMatchTesterRoute: typeof AuthenticatedMatchTesterRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPostRoute: typeof AuthenticatedPostRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
@@ -541,6 +582,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedBrowseRoute: AuthenticatedBrowseRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
+  AuthenticatedMatchTesterRoute: AuthenticatedMatchTesterRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPostRoute: AuthenticatedPostRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
@@ -560,6 +602,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   DropRoute: DropRoute,
+  HowItWorksRoute: HowItWorksRoute,
   LeaderboardRoute: LeaderboardRoute,
   TestSettingsRoute: TestSettingsRoute,
   CollectionsIdRoute: CollectionsIdRoute,

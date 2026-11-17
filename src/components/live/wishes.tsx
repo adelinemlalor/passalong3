@@ -25,7 +25,7 @@ export function WishForm({ limit }: { limit?: number }) {
           Wish
           <input
             required
-            maxLength={120}
+            maxLength={60}
             placeholder="e.g. puzzles"
             className="text-input"
             value={text}

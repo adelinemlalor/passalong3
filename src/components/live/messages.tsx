@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { getChat } from "@/lib/passalong/live.functions";
 import { useLive } from "./context";
+import { Failure } from "./failure";
 export function Chats() {
   const { data } = useLive();
   return (
@@ -89,6 +90,7 @@ export function Chat({ id }: { id: string }) {
           <Flag />
         </Button>
       </div>
+      <p className="text-xs text-muted-foreground my-3">Arrange pickup somewhere you're comfortable. Only share your address if you choose to.</p>
       <Link className="pinned-card" to="/i/$id" params={{ id: item.id }}>
         <img src={item.photo_url} alt={item.title} />
         <div>
@@ -108,7 +110,8 @@ export function Chat({ id }: { id: string }) {
       </ol>
       {claim.status === "expired" ? (
         <p className="live-notice">
-          This claim expired. The item is available again if it has not been claimed.
+          {own ? `${item.title} wasn't picked up, so it's available again.` : `Your claim on ${item.title} expired, so it's been offered again.`}
+          {own && item.status === "available" && <span className="flex flex-wrap gap-3 mt-4"><Button disabled={busy} onClick={()=>act("renew",{item_id:item.id})}>Renew</Button><Button disabled={busy} variant="outline" onClick={()=>act("donate",{item_id:item.id})}>Mark as donated</Button></span>}
         </p>
       ) : (
         current < 2 && (
@@ -128,7 +131,7 @@ export function Chat({ id }: { id: string }) {
         )
       )}
       <div className="flex gap-2 flex-wrap my-3">
-        {claim.status === "claimed" && (
+        {claim.status === "claimed" && new Date(claim.pickup_by).getTime() > Date.now() && (
           <Button
             disabled={busy}
             variant="outline"
@@ -137,7 +140,7 @@ export function Chat({ id }: { id: string }) {
             Pickup arranged
           </Button>
         )}
-        {current >= 0 && current < 2 && (
+        {current >= 0 && current < 2 && new Date(claim.pickup_by).getTime() > Date.now() && (
           <Button disabled={busy} onClick={() => act("pickup", { claim_id: id })}>
             Mark picked up
           </Button>
@@ -181,7 +184,7 @@ export function Chat({ id }: { id: string }) {
         {messages.isPending ? (
           <p>Loading messages…</p>
         ) : messages.error ? (
-          <p role="alert">{messages.error.message}</p>
+          <Failure retry={()=>{void messages.refetch();}} />
         ) : !messages.data?.length ? (
           <p className="text-sm text-muted-foreground">No messages yet.</p>
         ) : (

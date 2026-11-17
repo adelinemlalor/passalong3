@@ -1,0 +1,4 @@
+CREATE OR REPLACE FUNCTION public.wish_matches(t text,p text,cat text) RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT false $$;
+COMMENT ON FUNCTION public.wish_matches(text,text,text) IS 'DEPRECATED: disabled; all live matching uses src/lib/matching.ts via trusted server synchronization';
+CREATE OR REPLACE FUNCTION public.normal_words(t text) RETURNS text[] LANGUAGE sql IMMUTABLE SET search_path=public AS $$ SELECT ARRAY[]::text[] $$;
+COMMENT ON FUNCTION public.normal_words(text) IS 'DEPRECATED: disabled; tokenization is part of the shared pure matching rule';

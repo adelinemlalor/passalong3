@@ -22,6 +22,34 @@
       "when": 1794890339668,
       "tag": "0002_safe_public_previews",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794891408149,
+      "tag": "0003_part5_safety_evaluation",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794891483385,
+      "tag": "0004_part5_claim_privacy_metrics_guards",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794891707188,
+      "tag": "0005_part5_notification_delivery_preference",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794892186405,
+      "tag": "0006_retire_duplicate_matching_rule",
+      "breakpoints": true
     }
   ]
 }

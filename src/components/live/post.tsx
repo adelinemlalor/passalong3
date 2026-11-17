@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { CATEGORIES, CONDITIONS, PICKUP_AREAS } from "@/lib/passalong/live-rules";
 import { useLive } from "./context";
 import { NoCircle } from "./feed";
+import { Failure } from "./failure";
 export function Post() {
   const { circleId, data, act, busy } = useLive(),
     navigate = useNavigate();
@@ -17,7 +18,8 @@ export function Post() {
     [category, setCategory] = useState(""),
     [area, setArea] = useState(""),
     [nudge, setNudge] = useState(false),
-    [uploading, setUploading] = useState(false);
+    [uploading, setUploading] = useState(false),
+    [failure, setFailure] = useState("");
   if (!circleId) return <NoCircle />;
   async function review() {
     await act("event", { circle_id: circleId, name: "post_nudge_shown" });
@@ -25,6 +27,8 @@ export function Post() {
   }
   async function publish() {
     setUploading(true);
+    setFailure("");
+    let photoUploaded = false;
     try {
       const file = await fetch(image).then((r) => r.blob());
       if (file.size > 10 * 1024 * 1024)
@@ -34,6 +38,7 @@ export function Post() {
         .from("item-photos")
         .upload(path, file, { contentType: file.type });
       if (error) throw error;
+      photoUploaded = true;
       const result = await act("post", {
         circle_id: circleId,
         title,
@@ -46,7 +51,8 @@ export function Post() {
       toast.success("Your item is live in your circle.");
       if (result.id) await navigate({ to: "/i/$id", params: { id: result.id } });
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Your item could not be posted.");
+      setNudge(false);
+      setFailure(photoUploaded ? "Something went wrong on our side. Nothing you entered was lost." : "Your photo didn't upload. Try again or choose another photo.");
     } finally {
       setUploading(false);
     }
@@ -56,6 +62,7 @@ export function Post() {
       <p className="eyebrow">PASS IT ON</p>
       <h1>A new home for a good thing</h1>
       <PhotoPicker image={image} onChange={setImage} />
+      {failure && <Failure message={failure} retry={() => { void publish(); }} />}
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -67,7 +74,7 @@ export function Post() {
           Title
           <input
             required
-            maxLength={120}
+            maxLength={80}
             className="text-input"
             value={title}
             onChange={(e) => setTitle(e.target.value)}

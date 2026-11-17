@@ -5,8 +5,11 @@ import { CollectionPage } from '@/components/passalong/collections';
 import { AppShell } from '@/components/passalong/shell';
 import { collections, type CollectionId } from '@/lib/passalong/collections';
 import { pageHead } from '@/lib/passalong/data';
+import { InvalidLink, RouteFailure } from '@/components/live/failure';
 export const Route = createFileRoute('/collections/$id')({ beforeLoad:()=>{if(!features.collections)throw redirect({to:'/'});},
   loader: ({ params }) => { if (!collections.some(c => c.id === params.id)) throw notFound(); return null; },
+  errorComponent: RouteFailure,
+  notFoundComponent: InvalidLink,
   head: ({ params }) => { const c = collections.find(x => x.id === params.id); return pageHead(c?.title ?? 'Collection', c?.header ?? 'Themed collections from your circles.'); },
   component: () => features.collections ? <PassalongProvider><Page/></PassalongProvider> : null,
 });

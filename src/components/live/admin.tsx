@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { CATEGORIES, EVENT_NAMES } from "@/lib/passalong/live-rules";
-import { getAdminMetrics, getSynonyms } from "@/lib/passalong/live.functions";
+import { getAdminMetrics, getSynonyms, getAdminMembers } from "@/lib/passalong/live.functions";
 import { useLive } from "./context";
 interface Metrics {
   counts: { week: string; name: string; count: number }[];
@@ -14,13 +15,16 @@ interface Metrics {
     claimed_within_3_days: number;
     median_hours_to_claim: number | null;
   }[];
-  active: { week: string; members: number }[];
+  active: { week: string; members: number; activity_ratio: number | null }[];
+  rates: { no_show: number | null; second_post: number | null; clearout_interest: number | null };
   reports: { id: string; claim_id: string; reason: string; created_at: string }[];
 }
 export function Admin() {
   const { data, act, busy } = useLive(),
     metricsFn = useServerFn(getAdminMetrics),
     synonymsFn = useServerFn(getSynonyms),
+    membersFn = useServerFn(getAdminMembers),
+    [testUser,setTestUser] = useState(""),
     [name, setName] = useState(""),
     [category, setCategory] = useState("Garden"),
     [words, setWords] = useState("");
@@ -34,6 +38,7 @@ export function Admin() {
       queryFn: () => synonymsFn(),
       enabled: data.isAdmin,
     });
+  const members = useQuery({ queryKey:["admin-members"],queryFn:()=>membersFn(),enabled:data.isAdmin });
   if (!data.isAdmin)
     return (
       <div className="empty-state">
@@ -46,6 +51,8 @@ export function Admin() {
   return (
     <div className="live-admin">
       <h1>Circle admin</h1>
+      <Button className="mt-4" asChild variant="outline"><Link to="/match-tester">Match tester</Link></Button>
+      <section className="live-section"><h2>Circle access</h2>{data.circles.map(circle=><div className="border-b py-5" key={circle.id}><h3>{circle.name}{circle.is_test ? " · Test" : ""}</h3><p className="text-sm text-muted-foreground my-3">{circle.required_email_domain ? `Verified @${circle.required_email_domain} sign-in required` : circle.is_test ? "Admin-added test accounts only" : "Invite link required"}</p><Button variant="outline" disabled={busy} onClick={async()=>{await act("rotate_invite",{circle_id:circle.id});toast.success("New invite ready in your profile. The old invite no longer works.");}}>Regenerate invite link</Button>{members.data?.filter(m=>m.circle_id===circle.id).map(m=><div className="live-wish-row" key={m.user_id}><span>{m.display_name}</span>{m.user_id!==data.userId && <Button variant="ghost" disabled={busy} onClick={async()=>{await act("remove_member",{circle_id:circle.id,user_id:m.user_id});await members.refetch();}}>Remove member</Button>}</div>)}{circle.is_test && <form className="flex flex-wrap gap-3 mt-3" onSubmit={async e=>{e.preventDefault();await act("add_test_member",{circle_id:circle.id,user_id:testUser});setTestUser("");await members.refetch();}}><label className="form-label">Test account ID<input required className="text-input" value={testUser} onChange={e=>setTestUser(e.target.value)} /></label><Button type="submit" disabled={busy}>Add test account</Button></form>}</div>)}{!data.circles.some(c=>c.is_test) && <Button className="mt-4" variant="outline" disabled={busy} onClick={()=>act("create_test_circle")}>Create Test circle</Button>}</section>
       <section className="live-section">
         <h2>Create a circle</h2>
         <form
@@ -107,12 +114,14 @@ export function Admin() {
               <p className="mt-3 text-sm">
                 Weekly active members: {m?.active.find((a) => a.week === week)?.members ?? 0}
               </p>
+              <p className="text-sm mt-2">Week-over-week activity ratio: {m?.active.find(a=>a.week===week)?.activity_ratio ?? "—"}</p>
             </div>
           ))
         )}
       </section>
       <section className="live-section">
         <h2>Item outcomes</h2>
+        <p className="text-sm text-muted-foreground my-3">Test-circle activity is excluded.</p><dl className="grid gap-3 my-5"><div><dt>No-show rate</dt><dd>{m?.rates?.no_show ?? "—"}%</dd></div><div><dt>Givers who posted a second item</dt><dd>{m?.rates?.second_post ?? "—"}%</dd></div><div><dt>Clear-out interested rate</dt><dd>{m?.rates?.clearout_interest ?? "—"}%</dd></div></dl>
         <div className="live-table-wrap">
           <table>
             <thead>

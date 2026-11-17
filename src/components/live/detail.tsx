@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { CATEGORIES } from "@/lib/passalong/live-rules";
 import { useLive } from "./context";
 import { available } from "./feed";
+import { ConditionDisclosure, InvalidLink } from "./failure";
 export function MemberDetail({ id }: { id: string }) {
   const { data, act, busy } = useLive(),
     navigate = useNavigate();
@@ -13,18 +14,17 @@ export function MemberDetail({ id }: { id: string }) {
     seen = useRef(false);
   const [editing, setEditing] = useState(false),
     [title, setTitle] = useState(item?.title ?? ""),
-    [category, setCategory] = useState(item?.category ?? "");
+    [category, setCategory] = useState(item?.category ?? ""),
+    [missed, setMissed] = useState(false);
   useEffect(() => {
     if (item && !seen.current) {
       seen.current = true;
       void act("event", { item_id: id, name: "item_link_opened" });
     }
   }, [id, item, act]);
-  if (!item)
+  if (!item || ["removed", "donated", "expired"].includes(item.status) && item.giver_id !== data.userId)
     return (
-      <div className="empty-state">
-        <h1>This item isn't available in your circle</h1>
-      </div>
+      <InvalidLink />
     );
   const own = item.giver_id === data.userId,
     claim = data.claims.find((c) => c.item_id === id && c.status !== "expired"),
@@ -38,8 +38,10 @@ export function MemberDetail({ id }: { id: string }) {
     toast.success("Link and message copied.");
   }
   async function claimItem() {
-    const result = await act("claim", { item_id: id });
-    if (result.id) await navigate({ to: "/messages/$id", params: { id: result.id } });
+    try {
+      const result = await act("claim", { item_id: id });
+      if (result.id) await navigate({ to: "/messages/$id", params: { id: result.id } });
+    } catch (e) { if (e instanceof Error && e.message.includes("Just missed it")) setMissed(true); }
   }
   return (
     <div className="detail-page">
@@ -56,6 +58,7 @@ export function MemberDetail({ id }: { id: string }) {
           <p className="text-sm text-muted-foreground">
             {item.condition} · {item.category}
           </p>
+          <ConditionDisclosure />
           {item.description && <p className="detail-description">{item.description}</p>}
           <div className="detail-facts">
             <div>
@@ -114,7 +117,7 @@ export function MemberDetail({ id }: { id: string }) {
                   </Button>
                 )}
               </>
-            ) : available(item) ? (
+            ) : available(item) && !missed ? (
               <Button className="claim-button" disabled={busy} onClick={claimItem}>
                 Claim it
               </Button>
@@ -127,9 +130,9 @@ export function MemberDetail({ id }: { id: string }) {
             ) : (
               <>
                 <strong>
-                  {item.status === "claimed" ? "Claimed" : item.status.replace("_", " ")}
+                  {missed ? "Just missed it — someone claimed this a moment ago." : item.status === "claimed" ? "Someone already claimed this." : item.status.replace("_", " ")}
                 </strong>
-                {item.status === "claimed" && (
+                {(item.status === "claimed" || missed) && (
                   <Button
                     disabled={busy || watching}
                     variant="outline"
@@ -138,6 +141,7 @@ export function MemberDetail({ id }: { id: string }) {
                     {watching ? "We'll notify you" : "Notify me if it's free again"}
                   </Button>
                 )}
+                <Button variant="outline" asChild><Link to="/browse" search={{ category: item.category }}>See similar items</Link></Button>
               </>
             )}
             {!["removed", "expired", "donated"].includes(item.status) && (
@@ -160,7 +164,7 @@ export function MemberDetail({ id }: { id: string }) {
                 Title
                 <input
                   required
-                  maxLength={120}
+                  maxLength={80}
                   className="text-input"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}

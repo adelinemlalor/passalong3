@@ -9,6 +9,7 @@ import { useSession } from "./session";
 import { LiveProvider, useLive } from "./context";
 import { LiveShell } from "./shell";
 import { MemberDetail } from "./detail";
+import { ConditionDisclosure, InvalidLink, Failure } from "./failure";
 type Preview = Awaited<ReturnType<typeof getItemPreview>>;
 export function PublicItem({ item, id }: { item: Preview; id: string }) {
   const { user, loading } = useSession();
@@ -35,15 +36,11 @@ function SafePreview({ item, id }: { item: Preview; id: string }) {
   const { user } = useSession(),
     join = useServerFn(joinItem),
     navigate = useNavigate(),
-    [busy, setBusy] = useState(false);
+    [busy, setBusy] = useState(false),
+    [error, setError] = useState("");
   if (!item)
     return (
-      <main className="app-main empty-state">
-        <h1>This item is no longer available</h1>
-        <Button asChild className="mt-5">
-          <Link to="/">Go to Passalong</Link>
-        </Button>
-      </main>
+      <InvalidLink />
     );
   async function enter() {
     if (!user) {
@@ -56,7 +53,7 @@ function SafePreview({ item, id }: { item: Preview; id: string }) {
       await navigate({ to: "/i/$id", params: { id }, replace: true });
       window.location.reload();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Could not join the circle.");
+      setError(e instanceof Error ? e.message : "Could not join the circle.");
     } finally {
       setBusy(false);
     }
@@ -80,6 +77,9 @@ function SafePreview({ item, id }: { item: Preview; id: string }) {
             <p className="eyebrow">{item.circle_name}</p>
             <h1>{item.title}</h1>
             <p>{item.condition}</p>
+            <ConditionDisclosure />
+            <p className="mt-4">Join {item.circle_name} to see more and claim.</p>
+            {error && <Failure message={error} retry={() => { void enter(); }} />}
             <Button disabled={busy} className="mt-6 live-wrap-button" onClick={enter}>
               Join {item.circle_name} to claim
             </Button>

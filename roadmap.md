@@ -1,4 +1,10 @@
 # Passalong
+- [x] Build Part 5 durable failure screens and disclosure page.
+- [x] Centralize exact matching and add admin single/CSV match evaluation.
+- [x] Enforce circle email eligibility, invite rotation, member removal, text limits, and notification preferences.
+- [x] Add isolated test-circle tagging and expanded production metrics.
+- [x] Verify Part 5 real-user flows, security, CSV evaluation, and mobile screens.
+- [ ] Course-repo success bar, failure analysis, eval cases, tuning log, week-long study, and submission — waiting for course-repo access and launch evidence.
 - [x] Replace prototype with real accounts, profiles, invite-only circle data and privacy safeguards.
 - [x] Implement immediate posting, expiry, sharing and giver quality ranking.
 - [x] Implement private rules-based wishes, matching, notifications, feed, browse and swipe.

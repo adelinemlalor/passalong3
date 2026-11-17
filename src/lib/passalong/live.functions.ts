@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
+import { stripMarkup, validText } from "./safety";
 
 function publicClient() {
   const url = process.env["SUPABASE_URL"],
@@ -24,6 +25,7 @@ function publicClient() {
 export const getItemPreview = createServerFn({ method: "GET" })
   .inputValidator(z.object({ id: z.string().uuid() }))
   .handler(async ({ data }) => {
+    if (!z.string().uuid().safeParse(data.id).success) return null;
     const { data: rows, error } = await publicClient().rpc("item_preview", { item: data.id });
     if (error) throw new Error("This item could not be loaded.");
     const item = rows?.[0];
@@ -51,6 +53,8 @@ export const getInvitePreview = createServerFn({ method: "GET" })
 export const getLiveData = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
+    const { synchronizeMatches } = await import("./match-sync.server");
+    await synchronizeMatches();
     const s = context.supabase;
     const results = await Promise.all([
       s.from("profiles").select("*").eq("id", context.userId).single(),
@@ -133,6 +137,11 @@ const actionSchema = z.object({
     "edit_item",
     "read_notifications",
     "event",
+    "create_test_circle",
+    "rotate_invite",
+    "remove_member",
+    "add_test_member",
+    "notification_setting",
   ]),
   payload: z
     .record(z.union([z.string().max(2000), z.boolean(), z.array(z.string().max(120)).max(30)]))
@@ -142,9 +151,23 @@ export const liveAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator(actionSchema)
   .handler(async ({ data, context }) => {
+    const payload = Object.fromEntries(Object.entries(data.payload).map(([k,v]) => [k, typeof v === "string" ? stripMarkup(v) : Array.isArray(v) ? v.map(stripMarkup) : v]));
+    if (["post", "edit_item"].includes(data.action) && !validText(String(payload["title"] ?? ""), 80)) throw new Error("Titles must be 1–80 characters");
+    if (data.action === "wish" && !validText(String(payload["text"] ?? ""), 60)) throw new Error("Wishes must be 1–60 characters");
+    if (data.action === "notification_setting") {
+      if (typeof payload["enabled"] !== "boolean") throw new Error("Choose On or Off");
+      const result = await context.supabase.from("profiles").update({ match_notifications: payload["enabled"] }).eq("id",context.userId);
+      if (result.error) throw new Error("Your setting could not be saved. Try again.");
+      return {};
+    }
+    if (["create_test_circle", "rotate_invite", "remove_member", "add_test_member"].includes(data.action)) {
+      const result = await context.supabase.rpc("admin_circle_action", { action: data.action, payload });
+      if (result.error) throw new Error(result.error.message);
+      return result.data as { id?: string };
+    }
     const { data: result, error } = await context.supabase.rpc("passalong_action", {
       action: data.action,
-      payload: data.payload,
+      payload,
     });
     if (error) throw new Error(error.message);
     return result as { id?: string };
@@ -183,3 +206,8 @@ export const getSynonyms = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return data ?? [];
   });
+export const getAdminMembers = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
+  const { data, error } = await context.supabase.rpc("admin_members");
+  if (error) throw new Error("Admin access required");
+  return data ?? [];
+});

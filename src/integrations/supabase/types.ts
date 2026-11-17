@@ -91,19 +91,25 @@ export type Database = {
           created_at: string
           id: string
           invite_token: string
+          is_test: boolean
           name: string
+          required_email_domain: string | null
         }
         Insert: {
           created_at?: string
           id?: string
           invite_token?: string
+          is_test?: boolean
           name: string
+          required_email_domain?: string | null
         }
         Update: {
           created_at?: string
           id?: string
           invite_token?: string
+          is_test?: boolean
           name?: string
+          required_email_domain?: string | null
         }
         Relationships: []
       }
@@ -157,6 +163,7 @@ export type Database = {
           circle_id: string | null
           created_at: string
           id: string
+          is_test: boolean
           item_id: string | null
           name: string
           user_id: string
@@ -165,6 +172,7 @@ export type Database = {
           circle_id?: string | null
           created_at?: string
           id?: string
+          is_test?: boolean
           item_id?: string | null
           name: string
           user_id: string
@@ -173,6 +181,7 @@ export type Database = {
           circle_id?: string | null
           created_at?: string
           id?: string
+          is_test?: boolean
           item_id?: string | null
           name?: string
           user_id?: string
@@ -340,6 +349,24 @@ export type Database = {
           },
         ]
       }
+      match_revision: {
+        Row: {
+          applied: number
+          id: boolean
+          revision: number
+        }
+        Insert: {
+          applied?: number
+          id?: boolean
+          revision?: number
+        }
+        Update: {
+          applied?: number
+          id?: boolean
+          revision?: number
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           claim_id: string
@@ -428,6 +455,7 @@ export type Database = {
           created_at: string
           display_name: string
           id: string
+          match_notifications: boolean
           onboarded: boolean
         }
         Insert: {
@@ -436,6 +464,7 @@ export type Database = {
           created_at?: string
           display_name?: string
           id: string
+          match_notifications?: boolean
           onboarded?: boolean
         }
         Update: {
@@ -444,6 +473,7 @@ export type Database = {
           created_at?: string
           display_name?: string
           id?: string
+          match_notifications?: boolean
           onboarded?: boolean
         }
         Relationships: []
@@ -558,7 +588,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_circle_action: {
+        Args: { action: string; payload: Json }
+        Returns: Json
+      }
+      admin_members: {
+        Args: never
+        Returns: {
+          circle_id: string
+          display_name: string
+          user_id: string
+        }[]
+      }
       admin_metrics: { Args: never; Returns: Json }
+      apply_matches: {
+        Args: { expected: number; pairs: Json }
+        Returns: boolean
+      }
+      clean_text: { Args: { t: string }; Returns: string }
       invite_preview: {
         Args: { token: string }
         Returns: {

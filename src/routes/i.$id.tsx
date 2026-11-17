@@ -2,8 +2,11 @@ import { createFileRoute } from "@tanstack/react-router";
 import { getItemPreview } from "@/lib/passalong/live.functions";
 import { liveHead } from "@/lib/passalong/live-rules";
 import { PublicItem } from "@/components/live/public-item";
+import { InvalidLink, RouteFailure } from "@/components/live/failure";
 export const Route = createFileRoute("/i/$id")({
-  loader: ({ params }) => getItemPreview({ data: { id: params.id } }),
+  loader: ({ params }) => /^[0-9a-f-]{36}$/i.test(params.id) ? getItemPreview({ data: { id: params.id } }) : null,
+  errorComponent: RouteFailure,
+  notFoundComponent: InvalidLink,
   head: ({ loaderData }) => {
     const head = liveHead(
       loaderData?.title ?? "Shared item",

@@ -82,10 +82,10 @@ function rank(items: LiveItem[], all: LiveItem[]) {
       Date.parse(b.created_at) - Date.parse(a.created_at),
   );
 }
-export function Feed({ browse = false }: { browse?: boolean }) {
+export function Feed({ browse = false, initialCategory }: { browse?: boolean; initialCategory?: string | undefined }) {
   const { data, circleId, act, busy } = useLive();
   const [search, setSearch] = useState(""),
-    [category, setCategory] = useState("All");
+    [category, setCategory] = useState(initialCategory ?? "All");
   if (!circleId) return <NoCircle />;
   const circle = data.circles.find((c) => c.id === circleId);
   const items = rank(
@@ -158,6 +158,7 @@ export function Feed({ browse = false }: { browse?: boolean }) {
           </div>
         </section>
       )}
+      {!browse && !matched.length && <section className="live-section empty-state"><h2>No matches yet</h2><p>Nothing in your circle matches your wishlist yet. New items show up in Browse and Swipe as soon as they're posted.</p><div className="flex flex-wrap justify-center gap-3 mt-4"><Button asChild><Link to="/browse">Browse</Link></Button><Button asChild variant="outline"><Link to="/wishlist">Edit wishlist</Link></Button></div></section>}
       <section className="live-section">
         <div className="section-label">
           <h2>{browse ? "Available items" : "New in your circle"}</h2>
@@ -208,6 +209,7 @@ export function Swipe() {
   const { data, circleId, act, busy } = useLive(),
     navigate = useNavigate();
   const [sheet, setSheet] = useState(false),
+    [missed, setMissed] = useState<LiveItem | null>(null),
     [start, setStart] = useState<number | null>(null);
   const items = rank(
     data.items.filter(
@@ -232,8 +234,10 @@ export function Swipe() {
   }
   async function claim() {
     if (!item) return;
-    const result = await act("claim", { item_id: item.id });
-    if (result.id) await navigate({ to: "/messages/$id", params: { id: result.id } });
+    try {
+      const result = await act("claim", { item_id: item.id });
+      if (result.id) await navigate({ to: "/messages/$id", params: { id: result.id } });
+    } catch (e) { if (e instanceof Error && e.message.includes("Just missed it")) { setMissed(item); setSheet(false); } }
   }
   async function more() {
     if (!item) return;
@@ -328,6 +332,7 @@ export function Swipe() {
           </section>
         </div>
       )}
+      {missed && <div className="modal-backdrop"><section className="modal-panel" role="dialog" aria-modal="true" aria-label="Item just claimed"><h2>Just missed it — someone claimed this a moment ago.</h2><div className="grid gap-3 mt-5"><Button disabled={busy} onClick={async () => { await act("watch", { item_id: missed.id }); setMissed(null); }}>Notify me if it's free again</Button><Button asChild variant="outline"><Link to="/browse" search={{ category: missed.category }}>See similar items</Link></Button><Button variant="ghost" onClick={() => setMissed(null)}>Continue browsing</Button></div></section></div>}
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { PhotoPicker } from "@/components/passalong/photo-picker";
 import { useLive } from "./context";
@@ -11,7 +12,8 @@ export function Profile() {
   const { data, act, busy } = useLive(),
     [name, setName] = useState(data.profile?.display_name ?? ""),
     [avatar, setAvatar] = useState(""),
-    [saving, setSaving] = useState(false);
+    [saving, setSaving] = useState(false),
+    [notificationsOn, setNotificationsOn] = useState(data.profile?.match_notifications ?? true);
   const history = data.claims.filter((c) => ["picked_up", "thanked"].includes(c.status)),
     own = data.items.filter((i) => i.giver_id === data.userId);
   async function save() {
@@ -70,6 +72,7 @@ export function Profile() {
           {saving ? "Saving…" : "Save profile"}
         </Button>
       </form>
+      <section className="live-section"><h2>Match notifications</h2><label className="flex items-center gap-3 mt-4"><Switch aria-label="Match notifications" checked={notificationsOn} disabled={busy} onCheckedChange={enabled=>{setNotificationsOn(enabled);void act("notification_setting",{enabled}).catch(()=>setNotificationsOn(!enabled));}} /><span>{notificationsOn ? "On" : "Off"}</span></label><p className="text-sm text-muted-foreground mt-3">Quiet hours: 9 pm–8 am.</p><Button className="mt-4" variant="link" asChild><Link to="/how-it-works">How Passalong works & what we record</Link></Button></section>
       <section className="live-section">
         <div className="section-label">
           <h2>My circles</h2>
@@ -178,6 +181,7 @@ export function Notifications() {
                       : "It's available again"}
                 </strong>
                 <p className="text-sm text-muted-foreground">{item?.title ?? "Item"}</p>
+                {item && data.claims.some(c=>c.item_id===item.id && c.status==="expired") && n.kind==="free_again" && <p className="mt-2">{item.giver_id===data.userId ? `${item.title} wasn't picked up, so it's available again.` : `Your claim on ${item.title} expired, so it's been offered again.`}</p>}
                 <small>{new Date(n.created_at).toLocaleString()}</small>
               </div>
               {n.item_id && (
@@ -187,7 +191,7 @@ export function Notifications() {
                   </Link>
                 </Button>
               )}
-              {n.kind === "renew" && n.item_id && (
+              {(n.kind === "renew" || n.kind === "free_again" && item?.giver_id === data.userId && item.status === "available") && n.item_id && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   <Button
                     disabled={busy}

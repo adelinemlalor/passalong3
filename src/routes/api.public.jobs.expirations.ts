@@ -7,6 +7,8 @@ export const Route = createFileRoute("/api/public/jobs/expirations")({
         const denied = await authenticateCronRequest(request);
         if (denied) return denied;
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { synchronizeMatches } = await import("@/lib/passalong/match-sync.server");
+        await synchronizeMatches();
         const { error } = await supabaseAdmin.rpc("process_due");
         if (error) return Response.json({ error: "Scheduled updates failed" }, { status: 500 });
         return Response.json({ success: true });
