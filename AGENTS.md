@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Application architecture
+- Keep the public Cloud URL fallback in Vite's build configuration while preferring injected preview bindings; published browser bundles must not depend on ignored local environment files.
 - Keep real member data in Lovable Cloud and use authenticated server functions plus RLS; browser state is never an authority for access or claims.
 - Use the `_authenticated` layout for private screens and one top-level leaf per public invite/item preview; this preserves safe deep links and metadata.
 - Use database transactional actions and row locks for claims and hand-off transitions; this prevents races and privilege escalation.
