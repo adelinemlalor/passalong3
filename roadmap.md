@@ -1,5 +1,5 @@
 # Passalong
-- [x] Verify phone and desktop tab/control parity; expose desktop categories and chat replies without horizontal scrolling (populated claim/chat flows were not rerun).
+- [x] Verify phone and desktop tab/control parity; expose desktop categories and chat replies without horizontal scrolling; rerun posting, claims, messaging, pickup, thanks, and history on both sizes.
 - [x] Diagnose frozen tabs after invite sign-up and verify navigation and actions with a real signed-in session on phone and desktop.
 - [x] Build Part 5 durable failure screens and disclosure page.
 - [x] Centralize exact matching and add admin single/CSV match evaluation.
