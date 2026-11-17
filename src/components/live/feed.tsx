@@ -92,7 +92,7 @@ function rank(items: LiveItem[], all: LiveItem[]) {
   );
 }
 export function Feed({ browse = false, initialCategory }: { browse?: boolean; initialCategory?: string | undefined }) {
-  const { data, circleId, circleFilter, setCircleId, act, busy } = useLive();
+  const { data, circleId, circleFilter, setCircleId } = useLive();
   const navigate=useNavigate();
   const [search, setSearch] = useState(""),
     [localCategory, setCategory] = useState("All");
@@ -121,10 +121,6 @@ export function Feed({ browse = false, initialCategory }: { browse?: boolean; in
       ),
     }))
     .filter((x) => x.wish);
-  async function choice(value: boolean) {
-    await act("clearout", { choice: value });
-    toast.success("Thanks — your choice is recorded.");
-  }
   return (
     <div className="live-feed">
       <div className="live-heading">
@@ -205,22 +201,6 @@ export function Feed({ browse = false, initialCategory }: { browse?: boolean; in
           </div>
         )}
       </section>
-      {!browse && data.profile?.clearout_choice === null && (
-        <aside className="clearout-card">
-          <p>
-            Moving out in December? Post everything at once, your circle gets first pick, and we'll
-            arrange pickup of whatever's left — $25. <strong>Coming soon.</strong>
-          </p>
-          <div className="flex flex-wrap gap-2 mt-3">
-            <Button disabled={busy} size="sm" onClick={() => choice(true)}>
-              I'm interested
-            </Button>
-            <Button disabled={busy} variant="ghost" size="sm" onClick={() => choice(false)}>
-              Not for me
-            </Button>
-          </div>
-        </aside>
-      )}
       {!browse && <>
         <section className="live-section"><h2>Ending soon</h2><p className="section-intro">One last look before these good things move on.</p>{items.some(i=>endingSoon(i))?<div className="live-grid home-grid">{items.filter(i=>endingSoon(i)).map(item=><ItemCard item={item} key={item.id}/>)}</div>:<div className="empty-state"><PackageOpen size={32}/><p>Nothing is ending soon. There’s still time to find your next good thing.</p><Button asChild variant="outline"><Link to="/browse">Take a look around</Link></Button></div>}</section>
         <section className="live-section"><h2>Recently found a home</h2><p className="section-intro">Small things, new chapters.</p>{found.length?<div className="found-grid">{found.map(item=><article key={item.id} className="found-card"><img src={item.photo_url} alt={item.title}/><h3>{item.title} found a new home</h3></article>)}</div>:<div className="empty-state"><Heart size={32}/><p>The first new home is still to come.</p><Button asChild variant="outline"><Link to="/post">Pass something along</Link></Button></div>}</section>
