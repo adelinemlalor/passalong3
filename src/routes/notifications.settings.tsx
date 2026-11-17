@@ -1,3 +1,4 @@
+import { PassalongProvider } from '@/components/passalong/state';
 import { features } from '@/lib/passalong/features';
 import { createFileRoute, redirect } from '@tanstack/react-router';
 import { NotificationSettings } from '@/components/passalong/notifications';
