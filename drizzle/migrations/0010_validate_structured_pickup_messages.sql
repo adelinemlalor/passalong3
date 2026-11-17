@@ -1,0 +1,3 @@
+ALTER TABLE public.messages DROP CONSTRAINT messages_text_check;
+ALTER TABLE public.messages ADD CONSTRAINT messages_text_check CHECK((kind='times' AND text='' AND cardinality(slots) BETWEEN 1 AND 3) OR (kind='text' AND length(text) BETWEEN 1 AND 2000) OR (kind='spot' AND length(text) BETWEEN 1 AND 500));
+ALTER TABLE public.messages ADD CONSTRAINT messages_kind_check CHECK(kind IN('text','times','spot'));

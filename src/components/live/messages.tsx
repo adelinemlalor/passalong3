@@ -1,251 +1,53 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Send, Flag, MessageCircle } from "lucide-react";
+import { Send, MoreVertical, MessageCircle, Calendar, MapPin, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { getChat } from "@/lib/passalong/live.functions";
+import { PhotoPicker } from "@/components/passalong/photo-picker";
+import { supabase } from "@/integrations/supabase/client";
+import { getChat, liveAction } from "@/lib/passalong/live.functions";
+import { calendarFile, GIVER_REPLIES, RECEIVER_REPLIES, pickupLabel, suggestedTimes } from "@/lib/passalong/pickup-rules";
 import { useLive } from "./context";
 import { Failure } from "./failure";
 export function Chats() {
-  const { data } = useLive();
-  return (
-    <div className="notif-page">
-      <div className="live-heading">
-        <h1>Pickup chats</h1>
-      </div>
-      {!data.claims.length ? (
-        <div className="empty-state">
-          <MessageCircle />
-          <h3>No pickup chats yet</h3>
-          <p>Claim an item to start a conversation with its giver.</p>
-          <Button asChild variant="outline">
-            <Link to="/browse">Browse items</Link>
-          </Button>
-        </div>
-      ) : (
-        <div className="convo-list">
-          {data.claims.map((c) => {
-            const item = data.items.find((i) => i.id === c.item_id);
-            return (
-              <Link key={c.id} to="/messages/$id" params={{ id: c.id }} className="live-chat-row">
-                {item && <img src={item.photo_url} alt={item.title} />}
-                <div>
-                  <strong>{item?.title ?? "Item"}</strong>
-                  <p>{c.status.replaceAll("_", " ")}</p>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
+ const {data}=useLive();const [filter,setFilter]=useState("All");
+ const rows=data.claims.map(c=>{const item=data.items.find(i=>i.id===c.item_id),own=item?.giver_id===data.userId;const last=data.chatMessages.filter(m=>m.claim_id===c.id).at(-1);const other=data.people.find(p=>p.id===(own?c.receiver_id:item?.giver_id));const waiting=!!last&&last.sender_id!==data.userId&&!['picked_up','thanked','expired'].includes(c.status);const today=c.pickup_at&&new Date(c.pickup_at).toLocaleDateString('en-US',{timeZone:'America/Los_Angeles'})===new Date().toLocaleDateString('en-US',{timeZone:'America/Los_Angeles'});return {c,item,own,last,other,waiting,label:['picked_up','thanked'].includes(c.status)?'Done':waiting?'Waiting on you':today?'Pickup today':c.status==='expired'?'Expired':'Claimed'};}).filter(r=>filter==='All'||(filter==='Giving'?r.own:!r.own)).sort((a,b)=>Number(b.waiting)-Number(a.waiting)||new Date(b.last?.created_at??b.c.created_at).getTime()-new Date(a.last?.created_at??a.c.created_at).getTime());
+ return <div className="notif-page"><div className="live-heading"><h1>Messages</h1></div><div className="flex gap-2 mb-5">{['All','Giving','Receiving'].map(v=><Button key={v} variant={filter===v?'default':'outline'} aria-pressed={filter===v} onClick={()=>setFilter(v)}>{v}</Button>)}</div>{!rows.length?<div className="empty-state"><MessageCircle/><p>No chats yet. When you claim something, or someone claims yours, you'll talk here.</p><Button asChild variant="outline"><Link to="/browse">Browse items</Link></Button></div>:<div className="convo-list">{rows.map(({c,item,other,last,label})=><Link key={c.id} to="/messages/$id" params={{id:c.id}} className="live-chat-row">{other?.photo?<img src={other.photo} alt={other.display_name}/>:<UserRound/>}<div className="min-w-0 flex-1"><strong>{other?.display_name??'Circle member'}</strong><p>{item?.title}</p><p className="text-sm text-muted-foreground truncate">{last?.kind==='times'?'Pickup times suggested':last?.kind==='spot'?'Pickup spot shared':last?.text??'No messages yet'}</p><small className="text-primary">{label}</small></div>{item&&<img src={item.photo_url} alt={item.title}/>}</Link>)}</div>}</div>;
 }
-export function Chat({ id }: { id: string }) {
-  const { data, act, busy } = useLive(),
-    fetchChat = useServerFn(getChat),
-    [text, setText] = useState(""),
-    [report, setReport] = useState(false),
-    [reason, setReason] = useState("");
-  const claim = data.claims.find((c) => c.id === id),
-    item = data.items.find((i) => i.id === claim?.item_id);
-  const messages = useQuery({
-    queryKey: ["chat", id],
-    queryFn: () => fetchChat({ data: { id } }),
-    enabled: !!claim,
-    refetchInterval: 5000,
-  });
-  if (!claim || !item)
-    return (
-      <div className="empty-state">
-        <h1>This conversation is private</h1>
-      </div>
-    );
-  const own = item.giver_id === data.userId,
-    steps = ["Claimed", "Pickup arranged", "Picked up", "Thanked"],
-    current = ["claimed", "pickup_arranged", "picked_up", "thanked"].indexOf(claim.status);
-  const other = data.people.find((p) => p.id === (own ? claim.receiver_id : item.giver_id));
-  async function send() {
-    if (!text.trim()) return;
-    await act("message", { claim_id: id, text: text.trim() });
-    setText("");
-  }
-  return (
-    <div className="convo-page">
-      <div className="convo-header">
-        <Link to="/messages">←</Link>
-        <div>
-          <strong>{other?.display_name ?? "Circle member"}</strong>
-          <span className="text-sm text-muted-foreground">Pickup chat</span>
-        </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Report chat"
-          title="Report chat"
-          onClick={() => setReport(!report)}
-        >
-          <Flag />
-        </Button>
-      </div>
-      <p className="text-xs text-muted-foreground my-3">Arrange pickup somewhere you're comfortable. Only share your address if you choose to.</p>
-      <Link className="pinned-card" to="/i/$id" params={{ id: item.id }}>
-        <img src={item.photo_url} alt={item.title} />
-        <div>
-          <strong>{item.title}</strong>
-          <p>
-            {item.condition} · {item.pickup_area}
-          </p>
-        </div>
-      </Link>
-      <ol className="handoff-tracker">
-        {steps.map((s, n) => (
-          <li className={n <= current ? "done" : ""} key={s}>
-            <span>{n + 1}</span>
-            {s}
-          </li>
-        ))}
-      </ol>
-      {claim.status === "expired" ? (
-        <p className="live-notice">
-          {own ? `${item.title} wasn't picked up, so it's available again.` : `Your claim on ${item.title} expired, so it's been offered again.`}
-          {own && item.status === "available" && <span className="flex flex-wrap gap-3 mt-4"><Button disabled={busy} onClick={()=>act("renew",{item_id:item.id})}>Renew</Button><Button disabled={busy} variant="outline" onClick={()=>act("donate",{item_id:item.id})}>Mark as donated</Button></span>}
-        </p>
-      ) : (
-        current < 2 && (
-          <div className="live-deadline">
-            <p>Pickup by {new Date(claim.pickup_by).toLocaleString()}</p>
-            {own && (
-              <Button
-                disabled={busy}
-                size="sm"
-                variant="outline"
-                onClick={() => act("extend", { claim_id: id })}
-              >
-                Extend by 48 hours
-              </Button>
-            )}
-          </div>
-        )
-      )}
-      <div className="flex gap-2 flex-wrap my-3">
-        {claim.status === "claimed" && new Date(claim.pickup_by).getTime() > Date.now() && (
-          <Button
-            disabled={busy}
-            variant="outline"
-            onClick={() => act("arrange", { claim_id: id })}
-          >
-            Pickup arranged
-          </Button>
-        )}
-        {current >= 0 && current < 2 && new Date(claim.pickup_by).getTime() > Date.now() && (
-          <Button disabled={busy} onClick={() => act("pickup", { claim_id: id })}>
-            Mark picked up
-          </Button>
-        )}
-        {claim.status === "picked_up" && !own && (
-          <Button disabled={busy} onClick={() => act("thank", { claim_id: id })}>
-            Thank the giver
-          </Button>
-        )}
-        {claim.status === "thanked" && (
-          <p className="done-banner">Picked up and thanked — a good thing passed along.</p>
-        )}
-      </div>
-      {report && (
-        <form
-          className="grid gap-3 border-y py-4"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            await act("report", { claim_id: id, reason });
-            setReport(false);
-            setReason("");
-            toast.success("Your report was sent to the admin.");
-          }}
-        >
-          <label className="form-label">
-            Reason for report
-            <textarea
-              required
-              maxLength={1000}
-              className="text-input"
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-            />
-          </label>
-          <Button disabled={busy} type="submit">
-            Send report
-          </Button>
-        </form>
-      )}
-      <div className="msg-thread" aria-live="polite">
-        {messages.isPending ? (
-          <p>Loading messages…</p>
-        ) : messages.error ? (
-          <Failure retry={()=>{void messages.refetch();}} />
-        ) : !messages.data?.length ? (
-          <p className="text-sm text-muted-foreground">No messages yet.</p>
-        ) : (
-          messages.data.map((m) => (
-            <div
-              key={m.id}
-              className={`msg ${m.sender_id === data.userId ? "msg-me" : "msg-them"}`}
-            >
-              {m.text}
-              <small className="block opacity-70 mt-1">
-                {new Date(m.created_at).toLocaleTimeString([], {
-                  hour: "numeric",
-                  minute: "2-digit",
-                })}
-              </small>
-            </div>
-          ))
-        )}
-      </div>
-      {claim.status !== "expired" && (
-        <div className="composer">
-          <div className="quick-replies">
-            {[
-              "Thanks! When works for you?",
-              "Does today at 5 pm work?",
-              "Does tomorrow at 10 am work?",
-              "I'm on my way!",
-              "Thanks for passing this along!",
-            ].map((reply) => (
-              <Button key={reply} variant="outline" onClick={() => setText(reply)}>
-                {reply}
-              </Button>
-            ))}
-          </div>
-          <form
-            className="composer-input"
-            onSubmit={(e) => {
-              e.preventDefault();
-              void send();
-            }}
-          >
-            <input
-              aria-label="Message"
-              maxLength={2000}
-              className="text-input"
-              placeholder="Your message"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-            />
-            <Button
-              type="submit"
-              disabled={busy || !text.trim()}
-              size="icon"
-              title="Send message"
-              aria-label="Send message"
-            >
-              <Send />
-            </Button>
-          </form>
-        </div>
-      )}
-    </div>
-  );
+export function Chat({id}:{id:string}) {
+ const {data,act,busy}=useLive(),fetchChat=useServerFn(getChat),read=useServerFn(liveAction);
+ const [text,setText]=useState(''),[menu,setMenu]=useState(false),[sheet,setSheet]=useState(''),[reason,setReason]=useState(''),[spot,setSpot]=useState(''),[times,setTimes]=useState<string[]>([]),[note,setNote]=useState(''),[photo,setPhoto]=useState(''),[consent,setConsent]=useState(false),[uploading,setUploading]=useState(false),[error,setError]=useState('');
+ const end=useRef<HTMLDivElement>(null);
+ const claim=data.claims.find(c=>c.id===id),item=data.items.find(i=>i.id===claim?.item_id);
+ const chat=useQuery({queryKey:['chat',id,data.userId],queryFn:()=>fetchChat({data:{id}}),enabled:!!claim,refetchInterval:5000});
+ const unread=chat.data?.messages.some(m=>m.sender_id!==data.userId&&!m.seen_at);
+ useEffect(()=>{if(!unread)return;const mark=()=>{if(document.visibilityState==='visible')void read({data:{action:'read_chat',payload:{claim_id:id}}}).catch(()=>{});};mark();document.addEventListener('visibilitychange',mark);return()=>document.removeEventListener('visibilitychange',mark);},[id,unread,chat.dataUpdatedAt,read]);
+ useEffect(()=>{end.current?.scrollIntoView({block:'nearest'});},[chat.data?.messages.length]);
+ if(!claim||!item)return <div className="empty-state"><h1>This conversation is private</h1></div>;
+ const own=item.giver_id===data.userId,other=data.people.find(p=>p.id===(own?claim.receiver_id:item.giver_id));
+ const circle=data.circles.find(c=>item.circle_ids.includes(c.id)&&data.people.some(p=>p.id===other?.id&&p.circle_id===c.id));
+ const current=['claimed','pickup_arranged','picked_up','thanked'].indexOf(claim.status),active=current>=0&&current<2&&new Date(claim.pickup_by)>new Date();
+ const slots=suggestedTimes(new Date(),chat.data?.preferences??[]);
+ async function run(action:Parameters<typeof act>[0],payload:Parameters<typeof act>[1]){try{setError('');await act(action,payload);return true;}catch{setError("That didn't finish. Your draft is still here. Please try again.");return false;}}
+ async function thank(){setUploading(true);try{let path='';if(photo){const file=await fetch(photo).then(r=>r.blob());if(file.size>10*1024*1024)throw new Error('Photo must be smaller than 10 MB.');path=`${data.userId}/${crypto.randomUUID()}.jpg`;const {error}=await supabase.storage.from('item-photos').upload(path,file,{contentType:file.type});if(error)throw error;}if(await run('thank',{claim_id:id,text:note,photo_path:path,show_on_profile:consent})){setSheet('');setNote('');setPhoto('');}}catch{setError("Your photo didn't upload. Your note is still here.");}finally{setUploading(false);}}
+ function download(time:string){if(!item)return;const url=URL.createObjectURL(new Blob([calendarFile(item.title,time)],{type:'text/calendar'}));const a=document.createElement('a');a.href=url;a.download='passalong-pickup.ics';a.click();URL.revokeObjectURL(url);}
+ return <div className="convo-page"><div className="convo-header"><Button asChild variant="ghost" size="icon" title="Back to messages"><Link to="/messages">←</Link></Button>{other?.photo&&<img className="size-10 rounded-full object-cover" src={other.photo} alt={other.display_name}/>}<div className="flex-1 min-w-0"><strong>{other?.display_name??'Circle member'}</strong><span className="text-sm text-muted-foreground">{circle?.name??'Shared circle'}</span></div><Button variant="ghost" size="icon" aria-label="Chat menu" title="Chat menu" onClick={()=>setMenu(!menu)}><MoreVertical/></Button></div>{menu&&<div className="flex gap-3 mb-3"><Button variant="outline" onClick={()=>{setSheet('report');setMenu(false);}}>Report</Button>{circle&&other&&<Button asChild variant="outline"><Link to="/c/$id/member/$memberId" params={{id:circle.id,memberId:other.id}}>View profile</Link></Button>}</div>}
+ <p className="text-xs text-muted-foreground my-3">Arrange pickup somewhere you're comfortable. Only share your address if you choose to.</p>
+ <Link className="pinned-card" to="/i/$id" params={{id:item.id}}><img src={item.photo_url} alt={item.title}/><div><strong>{item.title}</strong><p>{item.pickup_style&&`${item.pickup_style} · `}{item.pickup_area}</p><p className="text-xs text-muted-foreground">Described by the giver. Passalong doesn't inspect items.</p>{claim.pickup_at&&<p>Pickup: {pickupLabel(claim.pickup_at)}</p>}</div></Link>
+ <ol className="handoff-tracker">{['Claimed','Pickup arranged','Picked up','Thanked'].map((s,n)=><li key={s} className={n<=current?'done':''}><span>{n+1}</span>{s}</li>)}</ol>
+ {claim.status==='expired'?<p className="live-notice">{own?`${item.title} wasn't picked up, so it's available again.`:`Your claim on ${item.title} expired, so it's been offered again.`}{own&&item.status==='available'&&<Button onClick={()=>act('renew',{item_id:item.id})}>Renew</Button>}</p>:current<2&&<div className="live-deadline"><p>Pickup by {pickupLabel(claim.pickup_by)}</p>{own&&<Button disabled={busy} variant="outline" size="sm" onClick={()=>act('extend',{claim_id:id})}>Extend by 48 hours</Button>}</div>}
+ <div className="flex flex-wrap gap-2 my-4">{active&&<><Button variant="outline" onClick={()=>{setTimes([]);setSheet('times');}}><Calendar/>Suggest times</Button><Button variant="outline" onClick={()=>{setSpot('');setSheet('spot');}}><MapPin/>Share pickup spot</Button></>}{active&&claim.status==='pickup_arranged'&&<Button disabled={busy} onClick={()=>run('pickup',{claim_id:id})}>Mark as picked up</Button>}{claim.status==='picked_up'&&!own&&<Button onClick={()=>setSheet('thanks')}>Say thanks</Button>}{claim.status==='thanked'&&<p className="done-banner">Picked up and thanked — a good thing passed along.</p>}</div>
+ {error&&<p role="alert" className="live-notice">{error}</p>}
+ <div className="msg-thread" aria-live="polite">{chat.isPending?<p>Loading messages…</p>:chat.error?<Failure retry={()=>void chat.refetch()}/>:!chat.data?.messages.length?<p className="text-sm text-muted-foreground">No messages yet.</p>:chat.data.messages.map(m=><div key={m.id} className={`msg ${m.sender_id===data.userId?'msg-me':'msg-them'} ${m.kind!=='text'?'msg-structured':''}`}>
+ {m.kind==='times'?<div className="grid gap-2"><strong>Suggested pickup times</strong>{m.slots.map(time=><Button key={time} variant="outline" disabled={busy||!!m.selected_at||m.sender_id===data.userId||!active||new Date(time)<=new Date()} onClick={()=>run('confirm_time',{claim_id:id,message_id:m.id,time})}>{pickupLabel(time)}</Button>)}{m.selected_at&&<><strong>Pickup: {pickupLabel(m.selected_at)}</strong><Button variant="outline" onClick={()=>download(m.selected_at??'')}><Calendar/>Add to calendar</Button></>}</div>:m.kind==='spot'?<div><strong>Pickup spot</strong><p className="whitespace-pre-wrap break-words">{m.text}</p></div>:<p className="whitespace-pre-wrap break-words">{m.text}</p>}
+ <small className="block opacity-70 mt-1">{new Date(m.created_at).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}{m.sender_id===data.userId&&m.seen_at&&' · Seen'}</small></div>)}{chat.data?.thanks&&<div className="live-notice"><strong>Thank you</strong><p>{chat.data.thanks.text}</p>{chat.data.thanks.photo&&<img className="w-full max-w-xs rounded" src={chat.data.thanks.photo} alt="Thank-you photo"/>}</div>}<div ref={end}/></div>
+ {claim.status!=='expired'&&<div className="composer"><div className="quick-replies">{(own?GIVER_REPLIES[item.pickup_style]??[]:RECEIVER_REPLIES).map(reply=><Button key={reply} variant="outline" onClick={()=>setText(reply)}>{reply}</Button>)}</div><form className="composer-input" onSubmit={async e=>{e.preventDefault();if(text.trim()&&await run('message',{claim_id:id,text:text.trim()}))setText('');}}><input aria-label="Message" maxLength={2000} className="text-input" placeholder="Your message" value={text} onChange={e=>setText(e.target.value)}/><Button type="submit" disabled={busy||!text.trim()} size="icon" title="Send message" aria-label="Send message"><Send/></Button></form></div>}
+ {sheet&&<div className="modal-backdrop"><section className="modal-panel max-h-[85dvh] overflow-y-auto" role="dialog" aria-modal="true" aria-label={sheet==='times'?'Suggest times':sheet==='spot'?'Share pickup spot':sheet==='thanks'?'Say thanks':'Report chat'}><div className="flex justify-between mb-4"><h2 className="text-xl font-semibold">{sheet==='times'?'Suggest times':sheet==='spot'?'Share pickup spot':sheet==='thanks'?'Say thanks':'Report chat'}</h2><Button variant="ghost" onClick={()=>setSheet('')}>Close</Button></div>
+ {sheet==='times'&&<><p>Pick up to 3 — {other?.display_name??'the other person'} taps one and you're set.</p><div className="grid gap-2 my-4">{slots.map(t=><Button key={t} variant={times.includes(t)?'default':'outline'} aria-pressed={times.includes(t)} disabled={!times.includes(t)&&times.length>=3} onClick={()=>setTimes(old=>old.includes(t)?old.filter(v=>v!==t):[...old,t])}>{pickupLabel(t)}</Button>)}</div><Button disabled={busy||!times.length} onClick={async()=>{if(await run('suggest_times',{claim_id:id,slots:times}))setSheet('');}}>Send times</Button></>}
+ {sheet==='spot'&&<><label className="form-label">Where should they meet you?<textarea className="text-input" maxLength={500} value={spot} onChange={e=>setSpot(e.target.value)}/></label><p className="text-sm text-muted-foreground my-3">Only share what you're comfortable with. You can share a landmark instead of an address.</p><Button disabled={busy||!spot.trim()} onClick={async()=>{if(await run('share_spot',{claim_id:id,text:spot}))setSheet('');}}>Share</Button></>}
+ {sheet==='thanks'&&<div className="grid gap-4"><label className="form-label">Short note (optional)<textarea className="text-input" maxLength={200} value={note} onChange={e=>setNote(e.target.value)}/></label><PhotoPicker image={photo} onChange={setPhoto}/><label className="flex gap-2"><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)}/>Show this on {other?.display_name??'the giver'}'s profile</label><Button disabled={busy||uploading} onClick={thank}>{uploading?'Uploading…':'Send thanks'}</Button><Button variant="ghost" onClick={()=>setSheet('')}>Skip</Button></div>}
+ {sheet==='report'&&<form className="grid gap-3" onSubmit={async e=>{e.preventDefault();if(await run('report',{claim_id:id,reason})){setSheet('');setReason('');toast.success('Your report was sent to the admin.');}}}><label className="form-label">Reason for report<textarea required maxLength={1000} className="text-input" value={reason} onChange={e=>setReason(e.target.value)}/></label><Button disabled={busy} type="submit">Send report</Button></form>}
+ </section></div>}</div>;
 }

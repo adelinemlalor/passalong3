@@ -1,7 +1,8 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getLiveData, liveAction } from "@/lib/passalong/live.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { Failure } from "./failure";
 import { Button } from "@/components/ui/button";
 export const liveQueryKey = ["passalong-live"] as const;
@@ -31,6 +32,11 @@ export function LiveProvider({ children }: { children: ReactNode }) {
   const [selected, setSelected] = useState("");
   const [actionError, setActionError] = useState("");
   const [retryInput, setRetryInput] = useState<ActionInput | null>(null);
+  useEffect(()=>{
+    if(!data?.userId)return;
+    const channel=supabase.channel(`passalong:${data.userId}`,{config:{private:true}}).on("broadcast",{event:"changed"},()=>{void q.invalidateQueries({queryKey:liveQueryKey});void q.invalidateQueries({queryKey:["chat"]});}).subscribe();
+    return ()=>{void supabase.removeChannel(channel);};
+  },[data?.userId,q]);
   const mutation = useMutation({
     mutationFn: (input: ActionInput) => run({ data: input }),
     onSuccess: async () => {

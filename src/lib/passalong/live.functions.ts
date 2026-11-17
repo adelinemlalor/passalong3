@@ -72,6 +72,7 @@ export const getLiveData = createServerFn({ method: "POST" })
       s.from("circles").select("id,name,is_test,required_email_domain").order("created_at"),
       s.from("categories").select("*").order("position"),
       s.from("kind_words").select("*").eq("giver_id",context.userId).eq("show_on_profile",true),
+      s.from("messages").select("*").order("created_at"),
     ]);
     for (const result of results) if (result.error) throw new Error(result.error.message);
     const [
@@ -89,6 +90,7 @@ export const getLiveData = createServerFn({ method: "POST" })
       adminCircles,
       categories,
       kindWords,
+      chatMessages,
     ] = results;
     const circleRows = (circles.data ?? []) as unknown as CircleSummary[];
     const peopleResults = await Promise.all(
@@ -124,11 +126,12 @@ export const getLiveData = createServerFn({ method: "POST" })
       matches: matches.data ?? [],
       passes: passes.data ?? [],
       watchers: watchers.data ?? [],
-      people,
+      people: await Promise.all(people.map(async p=>({...p,photo:p.avatar_url ? (await supabaseAdmin.storage.from("item-photos").createSignedUrl(p.avatar_url,3600)).data?.signedUrl??"":""}))),
+      chatMessages:chatMessages.data??[],
       isAdmin: (roles.data ?? []).some((r) => r.role === "admin"),
       userId: context.userId,
       categories: categories.data ?? [],
-      kindWords: kindWords.data ?? [],
+      kindWords: await Promise.all((kindWords.data??[]).map(async k=>({...k,photo:k.photo_path?(await s.storage.from("item-photos").createSignedUrl(k.photo_path,3600)).data?.signedUrl??"":""}))),
     };
   });
 const actionSchema = z.object({
@@ -161,6 +164,7 @@ const actionSchema = z.object({
     "remove_member",
     "add_test_member",
     "notification_setting",
+    "read_chat", "suggest_times", "confirm_time", "share_spot",
   ]),
   payload: z
     .record(z.union([z.string().max(2000), z.boolean(), z.array(z.string().max(120)).max(30)]))
@@ -209,7 +213,11 @@ export const getChat = createServerFn({ method: "POST" })
       .eq("claim_id", data.id)
       .order("created_at");
     if (error) throw new Error(error.message);
-    return messages;
+    const {data:preferences,error:preferenceError}=await context.supabase.rpc("chat_preferences",{claim:data.id});
+    const {data:thanks,error:thanksError}=await context.supabase.from("kind_words").select("*").eq("claim_id",data.id).maybeSingle();
+    if(preferenceError||thanksError)throw new Error("This conversation could not be loaded.");
+    const photo=thanks?.photo_path ? await context.supabase.storage.from("item-photos").createSignedUrl(thanks.photo_path,3600):null;
+    return {messages:messages??[],preferences:preferences??[],thanks:thanks?{...thanks,photo:photo?.data?.signedUrl??""}:null};
   });
 export const getAdminMetrics = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

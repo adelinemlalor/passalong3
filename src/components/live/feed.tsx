@@ -22,14 +22,16 @@ export function ItemCard({ item, reason }: { item: LiveItem; reason?: string | u
       </Link>
       <div className="live-card-body">
         <span className="text-xs text-muted-foreground">{categoryLabel(item.category,item.custom_category,data.categories)}</span>
+        <span className="text-xs text-muted-foreground">{item.condition}</span>
         <h3>
           <Link to="/i/$id" params={{ id: item.id }}>
             {item.title}
           </Link>
         </h3>
         <p className="text-sm text-muted-foreground">
-          {item.condition} · {item.pickup_area}
+          {item.pickup_style && `${item.pickup_style} · `}{item.pickup_area}
         </p>
+        <p className="text-xs text-muted-foreground">The giver shares the exact spot in the chat after you claim, if they choose.</p>
         {reason && (
           <p className="live-match">
             <Heart size={14} />

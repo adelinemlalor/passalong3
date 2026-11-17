@@ -1,7 +1,8 @@
 # Passalong
+- [ ] Complete Part 6C pickup styles, live private chat, explicit time/spot sharing, calendar, thanks and in-app alerts; exclude email and push for now.
 - [x] Add Part 6B database-managed categories, custom-category matching and promotion, fuller profiles and private member views.
 - [x] Verify category chips, custom matching, admin edits, profile settings and phone/desktop flows; temporary records removed.
-- [ ] Connect saved claim/message email preferences and writer-approved thank-you note entry in Part 6C — waiting for the Part 6C brief.
+- [ ] Claim/message email delivery — intentionally deferred by request; no sending domain configured.
 - [x] Add Part 6A circle ownership, discovery, member pages and multi-circle posting with database visibility safeguards.
 - [x] Verify Part 6A joining, owner actions, shared-item claims and phone/desktop access with temporary accounts; all temporary records removed.
 - [x] Verify phone and desktop tab/control parity; expose desktop categories and chat replies without horizontal scrolling; rerun posting, claims, messaging, pickup, thanks, and history on both sizes.

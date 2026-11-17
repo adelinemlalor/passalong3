@@ -8,6 +8,7 @@ import { CONDITIONS, PICKUP_AREAS } from "@/lib/passalong/live-rules";
 import { CategoryPicker } from "./category-picker";
 import { useLive } from "./context";
 import { NoCircle } from "./feed";
+import { PICKUP_STYLES } from "@/lib/passalong/pickup-rules";
 import { Failure } from "./failure";
 export function Post() {
   const { circleId, data, act, busy } = useLive(),
@@ -23,6 +24,7 @@ export function Post() {
     [failure, setFailure] = useState("");
   const [audience,setAudience] = useState(data.circles.map(circle=>circle.id));
   const [customCategory,setCustomCategory]=useState("");
+  const [pickupStyle,setPickupStyle]=useState("");
   if (!circleId) return <NoCircle />;
   async function review() {
     if(!audience.length)return;
@@ -51,6 +53,7 @@ export function Post() {
         category,
         custom_category:customCategory,
         pickup_area: area,
+        pickup_style:pickupStyle,
         photo_path: path,
       });
       toast.success("Your item is live in your circle.");
@@ -114,6 +117,7 @@ export function Post() {
             ))}
           </select>
         </label>
+        <fieldset className="grid gap-3"><legend className="form-label mb-3">Pickup style</legend><div className="flex flex-wrap gap-2">{PICKUP_STYLES.map(style=><Button key={style} type="button" variant={pickupStyle===style?"default":"outline"} aria-pressed={pickupStyle===style} onClick={()=>setPickupStyle(style)}>{style}</Button>)}</div></fieldset>
         <label className="form-label">
           Your own description (optional)
           <textarea
@@ -125,7 +129,7 @@ export function Post() {
           />
         </label>
         <fieldset className="grid gap-3"><legend className="form-label mb-3">Who can see it?</legend>{data.circles.map(circle=><label className="flex gap-3 items-center" key={circle.id}><input type="checkbox" checked={audience.includes(circle.id)} onChange={e=>setAudience(old=>e.target.checked?[...old,circle.id]:old.filter(id=>id!==circle.id))}/>{circle.name}</label>)}{!audience.length&&<p role="alert">Choose at least one circle.</p>}</fieldset>
-        <Button type="submit" disabled={!image || !category || !audience.length || busy}>
+        <Button type="submit" disabled={!image || !category || !pickupStyle || !audience.length || busy}>
           Post
         </Button>
       </form>

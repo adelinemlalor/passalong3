@@ -84,7 +84,7 @@ export function Profile() {
       </form>
       <section className="live-section"><h2>Match notifications</h2><label className="flex items-center gap-3 mt-4"><Switch aria-label="Match notifications" checked={notificationsOn} disabled={busy} onCheckedChange={enabled=>{setNotificationsOn(enabled);void act("notification_setting",{enabled}).catch(()=>setNotificationsOn(!enabled));}} /><span>{notificationsOn ? "On" : "Off"}</span></label><p className="text-sm text-muted-foreground mt-3">Quiet hours: 9 pm–8 am.</p><Button className="mt-4" variant="link" asChild><Link to="/how-it-works">How Passalong works & what we record</Link></Button></section>
       <section className="live-section"><h2>Email notifications</h2><label className="flex gap-3 items-center mt-4"><Switch aria-label="Claim emails" checked={claimEmails} disabled={busy} onCheckedChange={enabled=>{setClaimEmails(enabled);void act("profile",{claim_emails:enabled}).catch(()=>setClaimEmails(!enabled));}}/>Claim emails · {claimEmails?"On":"Off"}</label><label className="flex gap-3 items-center mt-4"><Switch aria-label="Message emails" checked={messageEmails} disabled={busy} onCheckedChange={enabled=>{setMessageEmails(enabled);void act("profile",{message_emails:enabled}).catch(()=>setMessageEmails(!enabled));}}/>Message emails · {messageEmails?"On":"Off"}</label></section>
-      <section className="live-section"><h2>Kind words</h2>{data.kindWords.length?data.kindWords.map(note=><blockquote className="border-b py-4" key={note.id}><p>{note.text}</p><p className="text-sm text-muted-foreground mt-2">{data.people.find(p=>p.id===note.writer_id)?.display_name??"Circle member"}</p></blockquote>):<p className="text-muted-foreground mt-4">No shared thank-you notes yet.</p>}</section>
+      <section className="live-section"><h2>Kind words</h2>{data.kindWords.length?data.kindWords.map(note=><blockquote className="border-b py-4" key={note.id}><p>{note.text}</p>{note.photo&&<img className="w-full max-w-xs rounded mt-3" src={note.photo} alt="Thank-you photo"/>}<p className="text-sm text-muted-foreground mt-2">{data.people.find(p=>p.id===note.writer_id)?.display_name??"Circle member"}</p></blockquote>):<p className="text-muted-foreground mt-4">No shared thank-you notes yet.</p>}</section>
       <section className="live-section">
         <div className="section-label">
           <h2>My circles</h2>
@@ -180,21 +180,23 @@ export function Notifications() {
       ) : (
         data.notifications.map((n) => {
           const item = data.items.find((i) => i.id === n.item_id);
+          const actor=data.people.find(p=>p.id===n.actor_id)?.display_name??"Circle member";
+          const alerts:Record<string,string>={claimed:`${actor} claimed your ${item?.title??"item"}.`,message:`${actor} sent you a message`,times:`${actor} suggested pickup times`,confirmed:"Pickup time confirmed",picked_up:"Item picked up",thanks:`${actor} thanked you`};
           return (
             <div className={`live-notification ${n.read_at ? "" : "live-unread"}`} key={n.id}>
               <div>
                 <strong>
-                  {n.kind === "match"
+                  {alerts[n.kind] ?? (n.kind === "match"
                     ? "A wishlist match"
                     : n.kind === "renew"
                       ? "Your item expires soon"
-                      : "It's available again"}
+                      : "It's available again")}
                 </strong>
                 <p className="text-sm text-muted-foreground">{item?.title ?? "Item"}</p>
                 {item && data.claims.some(c=>c.item_id===item.id && c.status==="expired") && n.kind==="free_again" && <p className="mt-2">{item.giver_id===data.userId ? `${item.title} wasn't picked up, so it's available again.` : `Your claim on ${item.title} expired, so it's been offered again.`}</p>}
                 <small>{new Date(n.created_at).toLocaleString()}</small>
               </div>
-              {n.item_id && (
+              {n.claim_id ? <Button variant="outline" asChild><Link to="/messages/$id" params={{id:n.claim_id}}>Open chat</Link></Button> : n.item_id && (
                 <Button variant="outline" asChild>
                   <Link to="/i/$id" params={{ id: n.item_id }}>
                     View item

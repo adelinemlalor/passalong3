@@ -178,6 +178,7 @@ export type Database = {
           id: string
           item_id: string
           picked_up_at: string | null
+          pickup_at: string | null
           pickup_by: string
           receiver_id: string
           status: string
@@ -187,6 +188,7 @@ export type Database = {
           id?: string
           item_id: string
           picked_up_at?: string | null
+          pickup_at?: string | null
           pickup_by?: string
           receiver_id: string
           status?: string
@@ -196,6 +198,7 @@ export type Database = {
           id?: string
           item_id?: string
           picked_up_at?: string | null
+          pickup_at?: string | null
           pickup_by?: string
           receiver_id?: string
           status?: string
@@ -414,6 +417,7 @@ export type Database = {
           id: string
           photo_path: string
           pickup_area: string
+          pickup_style: string
           reminded: boolean
           status: string
           title: string
@@ -432,6 +436,7 @@ export type Database = {
           id?: string
           photo_path: string
           pickup_area: string
+          pickup_style?: string
           reminded?: boolean
           status?: string
           title: string
@@ -450,6 +455,7 @@ export type Database = {
           id?: string
           photo_path?: string
           pickup_area?: string
+          pickup_style?: string
           reminded?: boolean
           status?: string
           title?: string
@@ -491,6 +497,7 @@ export type Database = {
           created_at: string
           giver_id: string
           id: string
+          photo_path: string
           show_on_profile: boolean
           text: string
           writer_id: string
@@ -500,6 +507,7 @@ export type Database = {
           created_at?: string
           giver_id: string
           id?: string
+          photo_path?: string
           show_on_profile?: boolean
           text: string
           writer_id: string
@@ -509,6 +517,7 @@ export type Database = {
           created_at?: string
           giver_id?: string
           id?: string
+          photo_path?: string
           show_on_profile?: boolean
           text?: string
           writer_id?: string
@@ -560,21 +569,33 @@ export type Database = {
           claim_id: string
           created_at: string
           id: string
+          kind: string
+          seen_at: string | null
+          selected_at: string | null
           sender_id: string
+          slots: string[]
           text: string
         }
         Insert: {
           claim_id: string
           created_at?: string
           id?: string
+          kind?: string
+          seen_at?: string | null
+          selected_at?: string | null
           sender_id: string
+          slots?: string[]
           text: string
         }
         Update: {
           claim_id?: string
           created_at?: string
           id?: string
+          kind?: string
+          seen_at?: string | null
+          selected_at?: string | null
           sender_id?: string
+          slots?: string[]
           text?: string
         }
         Relationships: [
@@ -596,6 +617,8 @@ export type Database = {
       }
       notifications: {
         Row: {
+          actor_id: string | null
+          claim_id: string | null
           created_at: string
           id: string
           item_id: string | null
@@ -604,6 +627,8 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          actor_id?: string | null
+          claim_id?: string | null
           created_at?: string
           id?: string
           item_id?: string | null
@@ -612,6 +637,8 @@ export type Database = {
           user_id: string
         }
         Update: {
+          actor_id?: string | null
+          claim_id?: string | null
           created_at?: string
           id?: string
           item_id?: string | null
@@ -620,6 +647,20 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "notifications_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_claim_id_fkey"
+            columns: ["claim_id"]
+            isOneToOne: false
+            referencedRelation: "claims"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "notifications_item_id_fkey"
             columns: ["item_id"]
@@ -847,6 +888,8 @@ export type Database = {
         Returns: Json
       }
       category_admin_data: { Args: never; Returns: Json }
+      chat_participant: { Args: { claim: string }; Returns: boolean }
+      chat_preferences: { Args: { claim: string }; Returns: string[] }
       circle_action: { Args: { action: string; payload?: Json }; Returns: Json }
       circle_members_detail: {
         Args: { circle: string }
@@ -900,6 +943,10 @@ export type Database = {
       my_circles: { Args: never; Returns: Json }
       normal_words: { Args: { t: string }; Returns: string[] }
       passalong_action: {
+        Args: { action: string; payload?: Json }
+        Returns: Json
+      }
+      passalong_category_action: {
         Args: { action: string; payload?: Json }
         Returns: Json
       }

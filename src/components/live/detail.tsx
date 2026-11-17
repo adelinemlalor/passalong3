@@ -67,7 +67,7 @@ export function MemberDetail({ id }: { id: string }) {
               <MapPin />
               <span>
                 <small>General pickup area</small>
-                {item.pickup_area}
+                {item.pickup_style && `${item.pickup_style} · `}{item.pickup_area}
               </span>
             </div>
             <div>
@@ -77,6 +77,7 @@ export function MemberDetail({ id }: { id: string }) {
               </span>
             </div>
           </div>
+          <p className="text-xs text-muted-foreground">The giver shares the exact spot in the chat after you claim, if they choose.</p>
           <div className="grid gap-3 mt-6">
             {own ? (
               <>

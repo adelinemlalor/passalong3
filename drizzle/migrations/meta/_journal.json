@@ -64,6 +64,20 @@
       "when": 1794897090509,
       "tag": "0008_managed_categories_full_profiles",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794898732989,
+      "tag": "0009_private_pickup_chat",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794899135034,
+      "tag": "0010_validate_structured_pickup_messages",
+      "breakpoints": true
     }
   ]
 }

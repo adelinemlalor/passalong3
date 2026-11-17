@@ -30,7 +30,7 @@ export function LiveShell({ children }: { children: ReactNode }) {
     { to: "/home", label: "Home", Icon: Home },
     { to: "/swipe", label: "Swipe", Icon: Layers },
     { to: "/post", label: "Post", Icon: Plus },
-    { to: "/messages", label: "Chat", Icon: MessageCircle },
+    { to: "/messages", label: "Messages", Icon: MessageCircle },
     { to: "/profile", label: "You", Icon: UserRound },
   ] as const;
   return (
@@ -60,6 +60,7 @@ export function LiveShell({ children }: { children: ReactNode }) {
             <Button variant="ghost" size="icon" asChild title="Notifications">
               <Link to="/notifications" aria-label="Notifications">
                 <Bell />
+                {data.notifications.some(n=>!n.read_at)&&<span className="text-xs text-primary" aria-label="Unread notifications">{data.notifications.filter(n=>!n.read_at).length}</span>}
               </Link>
             </Button>
             <Button
@@ -86,6 +87,7 @@ export function LiveShell({ children }: { children: ReactNode }) {
             <Link to={to}>
               <Icon />
               <span>{label}</span>
+              {to==="/messages"&&data.chatMessages.some(m=>m.sender_id!==data.userId&&!m.seen_at)&&<span className="text-xs text-primary" aria-label="Unread messages">{data.chatMessages.filter(m=>m.sender_id!==data.userId&&!m.seen_at).length}</span>}
             </Link>
           </Button>
         ))}

@@ -29,3 +29,5 @@
 - Keep category identifiers stable and labels/order in categories; every live picker reads that list and custom-category normalization stays in the sole matching module.
 - Only category_action may promote custom labels and migrate their items/wishes atomically; events carry category identifiers rather than typed labels.
 - Member profiles use a narrow shared-circle RPC with abbreviated names and writer-approved kind words; pickup and email preferences remain owner-only profile fields.
+- Chat actions lock claims and require active participants; time cards require the other participant's explicit confirmation, and data-free private doorbells only invalidate authenticated reads.
+- Pickup suggestions use Los Angeles local time in pickup-rules; calendar exports contain title/time only, and private spot text never enters analytics.
