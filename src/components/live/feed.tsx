@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { mainWord } from "@/lib/passalong/live-rules";
 import { categoryLabel } from "@/lib/passalong/category-rules";
+import { CategoryPicker } from "./category-picker";
 import { useLive, type LiveItem } from "./context";
 export function available(item: LiveItem) {
   return item.status === "available" && new Date(item.expires_at).getTime() > Date.now();
@@ -216,10 +217,12 @@ export function Swipe() {
   const [sheet, setSheet] = useState(false),
     [missed, setMissed] = useState<LiveItem | null>(null),
     [start, setStart] = useState<number | null>(null);
+  const [swipeCategory,setSwipeCategory]=useState("All");
   const items = rank(
     data.items.filter(
       (i) =>
         (!circleFilter || i.circle_ids.includes(circleFilter)) &&
+        (swipeCategory === "All" || i.category === swipeCategory) &&
         i.giver_id !== data.userId &&
         available(i) &&
         !data.passes.some((p) => p.item_id === i.id),
@@ -259,6 +262,7 @@ export function Swipe() {
           <h1>One good thing at a time</h1>
         </div>
       </div>
+      <div className="mb-5"><CategoryPicker label="Swipe category" categories={[{id:"all",key:"All",name:"All",position:-1},...data.categories]} value={swipeCategory} onChange={setSwipeCategory} required={false}/></div>
       {item ? (
         <>
           <div
