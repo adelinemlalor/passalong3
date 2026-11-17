@@ -1,15 +1,3 @@
-export const CATEGORIES = [
-  "Household",
-  "Furniture",
-  "Books",
-  "Puzzles & games",
-  "Garden",
-  "Pets",
-  "Clothing",
-  "Sports",
-  "Electronics",
-  "Other",
-] as const;
 export const CONDITIONS = ["New", "Like new", "Good", "Fair"] as const;
 export const PICKUP_AREAS = [
   "Near campus",
