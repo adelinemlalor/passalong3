@@ -71,7 +71,7 @@ export function LiveProvider({ children }: { children: ReactNode }) {
         circleId,
         circleFilter,
         setCircleId: setSelected,
-        act: (action, payload = {}) => mutation.mutateAsync({ action, payload: { ...payload, ...(action === "clearout" ? { circle_id: circleId } : {}) } }),
+        act: (action, payload = {}) => mutation.mutateAsync({ action, payload: { ...payload, ...(action === "clearout" || action === "clearout_tap" ? { circle_id: circleId } : {}) } }),
         busy: mutation.isPending,
       }}
     >

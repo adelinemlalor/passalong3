@@ -142,6 +142,7 @@ const actionSchema = z.object({
     "join",
     "profile",
     "clearout",
+    "clearout_tap",
     "create_circle",
     "synonym",
     "message",

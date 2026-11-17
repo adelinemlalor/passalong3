@@ -85,6 +85,13 @@
       "when": 1794900212541,
       "tag": "0011_real_circle_home_activity",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794904240818,
+      "tag": "0012_clearout_button_tapped_event",
+      "breakpoints": true
     }
   ]
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Heart, Search, PackageOpen, X, ArrowRight, Plus, Check } from "lucide-react";
 import { toast } from "sonner";
@@ -202,6 +202,7 @@ export function Feed({ browse = false, initialCategory }: { browse?: boolean; in
         )}
       </section>
       {!browse && <>
+        <ClearoutPrompt />
         <section className="live-section"><h2>Ending soon</h2><p className="section-intro">One last look before these good things move on.</p>{items.some(i=>endingSoon(i))?<div className="live-grid home-grid">{items.filter(i=>endingSoon(i)).map(item=><ItemCard item={item} key={item.id}/>)}</div>:<div className="empty-state"><PackageOpen size={32}/><p>Nothing is ending soon. There’s still time to find your next good thing.</p><Button asChild variant="outline"><Link to="/browse">Take a look around</Link></Button></div>}</section>
         <section className="live-section"><h2>Recently found a home</h2><p className="section-intro">Small things, new chapters.</p>{found.length?<div className="found-grid">{found.map(item=><article key={item.id} className="found-card"><img src={item.photo_url} alt={item.title}/><h3>{item.title} found a new home</h3></article>)}</div>:<div className="empty-state"><Heart size={32}/><p>The first new home is still to come.</p><Button asChild variant="outline"><Link to="/post">Pass something along</Link></Button></div>}</section>
         <section className="live-section"><h2>This month in your circles</h2><dl className="month-counts"><div><dd>{data.homeActivity.posted.filter(row=>scoped(row.circle_ids)).length}</dd><dt>Items posted</dt></div><div><dd>{passedThisMonth}</dd><dt>Items passed along</dt></div><div><dd>{data.homeActivity.members.filter(row=>scoped(row.circle_ids)).length}</dd><dt>Members</dt></div></dl></section>
@@ -343,4 +344,32 @@ export function Swipe() {
       {missed && <div className="modal-backdrop"><section className="modal-panel" role="dialog" aria-modal="true" aria-label="Item just claimed"><h2>Just missed it — someone claimed this a moment ago.</h2><div className="grid gap-3 mt-5"><Button disabled={busy} onClick={async () => { await act("watch", { item_id: missed.id }); setMissed(null); }}>Notify me if it's free again</Button><Button asChild variant="outline"><Link to="/browse" search={{ category: missed.category }}>See similar items</Link></Button><Button variant="ghost" onClick={() => setMissed(null)}>Continue browsing</Button></div></section></div>}
     </div>
   );
+}
+
+function ClearoutPrompt() {
+  const { data, act } = useLive();
+  const key = `passalong-clearout-answered-${data.userId}`;
+  const [answered, setAnswered] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [thanks, setThanks] = useState(false);
+  useEffect(() => { if (sessionStorage.getItem(key)) setAnswered(true); }, [key]);
+  const everAnswered = data.profile?.clearout_choice != null;
+  if ((answered || everAnswered) && !open) return null;
+  const answer = async (choice: boolean) => {
+    try { await act("clearout", { choice }); } catch { toast.error("That didn’t save. Please try again."); return; }
+    sessionStorage.setItem(key, "1");
+    setAnswered(true);
+    if (choice) setThanks(true); else setOpen(false);
+  };
+  return <>
+    <div className="clearout-prompt"><Button variant="outline" size="sm" onClick={() => { setOpen(true); setThanks(false); void act("clearout_tap").catch(() => {}); }}>📦 Moving soon? Get notified about clear-out help</Button></div>
+    {open && <div className="modal-backdrop" onClick={() => setOpen(false)}><section className="modal-panel clearout-sheet" role="dialog" aria-modal="true" aria-label="Clear-out help, circle first" onClick={e => e.stopPropagation()}>
+      <button className="clearout-close" aria-label="Close" onClick={() => setOpen(false)}><X size={18} /></button>
+      {thanks ? <p className="pr-8">Thanks — we'll tell you here in Passalong when it's ready.</p> : <>
+        <h2 className="pr-8">Clear-out help, circle first</h2>
+        <p className="text-sm text-muted-foreground my-4">Post everything at once, your circle gets first pick, and we arrange pickup of whatever's left. We're thinking about $25. Coming soon. Nothing is charged now.</p>
+        <div className="grid gap-3"><Button onClick={() => answer(true)}>Notify me when it's ready</Button><Button variant="outline" onClick={() => answer(false)}>Not for me at $25</Button></div>
+      </>}
+    </section></div>}
+  </>;
 }
