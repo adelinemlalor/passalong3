@@ -13,6 +13,7 @@
 - Keep the public Cloud URL fallback in Vite's build configuration while preferring injected preview bindings; published browser bundles must not depend on ignored local environment files.
 - Keep real member data in Lovable Cloud and use authenticated server functions plus RLS; browser state is never an authority for access or claims.
 - Use the `_authenticated` layout for private screens and one top-level leaf per public invite/item preview; this preserves safe deep links and metadata.
+- Keep welcome setup on Home and the dedicated onboarding page, never in the shared layout; optional setup must not intercept other tabs or its own item/wishlist links.
 - Use database transactional actions and row locks for claims and hand-off transitions; this prevents races and privilege escalation.
 - Keep user roles separate from profiles, with no client role writes; profile edits must never grant privileges.
 - Keep the sole live matching predicate in src/lib/matching.ts, shared by the evaluator and trusted server synchronization; revision-checked database application prevents stale matching writes.

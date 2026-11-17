@@ -1,4 +1,5 @@
 # Passalong
+- [x] Diagnose frozen tabs after invite sign-up and verify navigation and actions with a real signed-in session on phone and desktop.
 - [x] Build Part 5 durable failure screens and disclosure page.
 - [x] Centralize exact matching and add admin single/CSV match evaluation.
 - [x] Enforce circle email eligibility, invite rotation, member removal, text limits, and notification preferences.

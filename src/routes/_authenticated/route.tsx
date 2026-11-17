@@ -2,8 +2,6 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { LiveProvider } from "@/components/live/context";
 import { LiveShell } from "@/components/live/shell";
-import { Onboarding } from "@/components/live/wishes";
-import { useLive } from "@/components/live/context";
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async ({ location }) => {
@@ -17,13 +15,7 @@ export const Route = createFileRoute("/_authenticated")({
 function Gate() {
   return (
     <LiveProvider>
-      <MemberShell />
+      <LiveShell><Outlet /></LiveShell>
     </LiveProvider>
-  );
-}
-function MemberShell() {
-  const { data, circleId } = useLive();
-  return (
-    <LiveShell>{circleId && !data.profile?.onboarded ? <Onboarding /> : <Outlet />}</LiveShell>
   );
 }
