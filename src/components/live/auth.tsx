@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { HandHeart, Mail } from "lucide-react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { safeNext } from "@/lib/passalong/live-rules";
+import { Failure } from "./failure";
 export function GoogleLogo() {
   return (
     <svg
@@ -37,7 +37,8 @@ export function Auth({ next = "/" }: { next?: string }) {
   const navigate = useNavigate(),
     [email, setEmail] = useState(""),
     [busy, setBusy] = useState(false),
-    [sent, setSent] = useState(false);
+    [sent, setSent] = useState(false),
+    [failure, setFailure] = useState<"magic" | "google" | null>(null);
   const target = safeNext(next);
   useEffect(() => {
     void supabase.auth.getUser().then(({ data }) => {
@@ -50,6 +51,8 @@ export function Auth({ next = "/" }: { next?: string }) {
   }, [navigate, target]);
   async function magic() {
     setBusy(true);
+    setFailure(null);
+    try {
     sessionStorage.setItem("passalong-next", target);
     const { error } = await supabase.auth.signInWithOtp({
       email,
@@ -58,22 +61,26 @@ export function Auth({ next = "/" }: { next?: string }) {
       },
     });
     setBusy(false);
-    if (error) toast.error(error.message);
+    if (error) setFailure("magic");
     else setSent(true);
+    } catch { setFailure("magic"); } finally { setBusy(false); }
   }
   async function google() {
     setBusy(true);
+    setFailure(null);
+    try {
     sessionStorage.setItem("passalong-next", target);
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin + "/auth",
     });
     if (result.error) {
-      toast.error(result.error.message);
+      setFailure("google");
       setBusy(false);
       return;
     }
     if (result.redirected) return;
     await navigate({ to: target, replace: true });
+    } catch { setFailure("google"); setBusy(false); }
   }
   return (
     <div className="live-auth">
@@ -84,6 +91,7 @@ export function Auth({ next = "/" }: { next?: string }) {
       <div className="live-auth-inner">
         <p className="eyebrow">HAAS FTMBA 2027</p>
         <h1>A good thing starts with your circle.</h1>
+        {failure && <Failure retry={() => { if (failure === "magic") void magic(); else void google(); }} />}
         {sent ? (
           <section className="live-notice" role="status">
             <Mail className="text-primary mb-3" />

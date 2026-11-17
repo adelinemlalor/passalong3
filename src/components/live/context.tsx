@@ -22,7 +22,7 @@ export function LiveProvider({ children }: { children: ReactNode }) {
   const fetchData = useServerFn(getLiveData),
     run = useServerFn(liveAction),
     q = useQueryClient();
-  const { data, isPending } = useQuery({
+  const { data, error, isPending } = useQuery({
     queryKey: liveQueryKey,
     queryFn: () => fetchData(),
     refetchInterval: 30000,
@@ -67,6 +67,7 @@ export function LiveProvider({ children }: { children: ReactNode }) {
       }}
     >
       {children}
+      {error && <Failure retry={() => { void q.invalidateQueries({ queryKey: liveQueryKey }); }} />}
       {actionError && !actionError.includes("Just missed it") && <div className="modal-backdrop"><section className="modal-panel" role="dialog" aria-modal="true" aria-label="Action could not finish"><Failure message={actionError.includes("berkeley.edu") || actionError.includes("Admin") || actionError.includes("active pickups") ? actionError : undefined} retry={() => { if (retryInput) void mutation.mutateAsync(retryInput).catch(() => {}); }} /><Button variant="ghost" onClick={() => setActionError("")}>Back to my draft</Button></section></div>}
     </Context.Provider>
   );
