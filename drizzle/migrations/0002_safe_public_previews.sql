@@ -1,0 +1,12 @@
+CREATE FUNCTION public.item_preview(item uuid) RETURNS TABLE(id uuid,title text,condition text,circle_name text,photo_path text) LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT i.id,i.title,i.condition,c.name,i.photo_path FROM public.items i JOIN public.circles c ON c.id=i.circle_id WHERE i.id=item AND i.status NOT IN('removed','donated','expired') $$;
+CREATE FUNCTION public.invite_preview(token uuid) RETURNS TABLE(name text) LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT c.name FROM public.circles c WHERE c.invite_token=token $$;
+CREATE FUNCTION public.member_names(circle uuid) RETURNS TABLE(id uuid,display_name text,avatar_url text) LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$ SELECT p.id,p.display_name,p.avatar_url FROM public.profiles p JOIN public.circle_members cm ON cm.user_id=p.id WHERE cm.circle_id=circle AND public.is_member(circle) $$;
+CREATE FUNCTION public.join_from_item(item uuid) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$ DECLARE token uuid; cid uuid; BEGIN IF auth.uid() IS NULL THEN RAISE EXCEPTION 'Sign in first'; END IF; SELECT c.invite_token,c.id INTO token,cid FROM public.items i JOIN public.circles c ON c.id=i.circle_id WHERE i.id=item AND i.status NOT IN('removed','donated','expired'); IF cid IS NULL THEN RAISE EXCEPTION 'Item unavailable'; END IF; PERFORM public.passalong_action('join',jsonb_build_object('token',token)); RETURN cid; END $$;
+REVOKE ALL ON FUNCTION public.item_preview(uuid),public.invite_preview(uuid) FROM PUBLIC; GRANT EXECUTE ON FUNCTION public.item_preview(uuid),public.invite_preview(uuid) TO anon,authenticated;
+REVOKE ALL ON FUNCTION public.member_names(uuid),public.join_from_item(uuid) FROM PUBLIC,anon; GRANT EXECUTE ON FUNCTION public.member_names(uuid),public.join_from_item(uuid) TO authenticated;
+CREATE INDEX circle_members_user ON public.circle_members(user_id);
+CREATE INDEX notifications_user ON public.notifications(user_id,created_at);
+CREATE INDEX matches_user ON public.item_matches(user_id);
+CREATE INDEX watchers_user ON public.item_watchers(user_id);
+CREATE INDEX passes_user ON public.swipe_passes(user_id);
+CREATE INDEX reports_claim ON public.chat_reports(claim_id);

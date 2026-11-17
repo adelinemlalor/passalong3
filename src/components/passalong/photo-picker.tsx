@@ -33,8 +33,8 @@ export function PhotoPicker({ image, onChange }: { image: string; onChange: (ima
       {image ? <img src={image} alt="Your offer" /> : <><Camera size={38} /><strong>{reading ? 'Opening your photo…' : 'Add a photo'}</strong><span>Snap it now or pick one from your photos</span></>}
     </div>
     <div className="photo-actions grid grid-cols-2 gap-3">
-      <Button disabled={reading} onClick={() => cameraRef.current?.click()}><Camera size={18} />Take a photo</Button>
-      <Button disabled={reading} variant="outline" onClick={() => uploadRef.current?.click()}><ImagePlus size={18} />Upload photo</Button>
+      <Button type="button" disabled={reading} onClick={() => cameraRef.current?.click()}><Camera size={18} />Take a photo</Button>
+      <Button type="button" disabled={reading} variant="outline" onClick={() => uploadRef.current?.click()}><ImagePlus size={18} />Upload photo</Button>
     </div>
     {error && <p role="alert" className="text-sm text-primary">{error}</p>}
   </div>;

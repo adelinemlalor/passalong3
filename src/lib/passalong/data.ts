@@ -15,17 +15,13 @@ import jars from '@/assets/more-3.jpg';
 import lamp from '@/assets/more-4.jpg';
 import yarn from '@/assets/more-5.jpg';
 import marcus from '@/assets/more-7.jpg';
-import adelinePhoto from '@/assets/Adeline_Lalor.jpeg.asset.json';
-import andrewPhoto from '@/assets/Andrew_Fullerton.jpeg.asset.json';
-import maryPhoto from '@/assets/Mary_Borden.jpeg.asset.json';
-import oliviaPhoto from '@/assets/Olivia_Chandler.jpeg.asset.json';
 export const selfIndex = 2;
 export const teamIndices = [2, 0, 1, 3];
 export const contacts = [
- {name:'Andrew',last:'Fullerton',photo:andrewPhoto.url,mutuals:3,location:'South Berkeley',bio:'Cat person, puzzle finisher, and always hunting for a great record. Happy to give useful things another spin.',circleIds:['south-berkeley','ftmba','npd'],wishlist:['cat toys','puzzles','denim','art (photos or paintings)','records for his record player']},
- {name:'Mary',last:'Borden',photo:maryPhoto.url,mutuals:3,location:'San Francisco · near the Marina',bio:'Making a cozy home, one secondhand find at a time. Dog walks, good art, and lending a hand are my kind of weekend.',circleIds:['marina','ftmba','npd'],wishlist:['dog toys','any home furniture','patio furniture','rugs','art','help moving a couch']},
- {name:'Adeline',last:'Lalor',photo:adelinePhoto.url,mutuals:3,location:'Channing Way · Berkeley',address:'1501 Channing Way, Berkeley, CA 94703',bio:'Dog lover, soccer teammate, and growing a little green wherever I can. Always happy to pass something useful along.',circleIds:['soccer','channing','ftmba','npd'],wishlist:['dog toys','dog beds','seeds for planting','help jumpstarting car','help moving couch','patio furniture','pots for plants','soccer gear']},
- {name:'Olivia',last:'Chandler',photo:oliviaPhoto.url,mutuals:3,location:'South Berkeley',bio:'A good book, fresh flowers, and a cozy jacket make my day. Love finding new homes for the things I no longer use.',circleIds:['south-berkeley','ftmba','npd'],wishlist:['lemon squeezer','books','fall/winter jackets','flower vases']},
+ {name:'Demo A',last:'Member',photo:marcus,mutuals:3,location:'South Berkeley',bio:'Cat person, puzzle finisher, and always hunting for a great record. Happy to give useful things another spin.',circleIds:['south-berkeley','ftmba','npd'],wishlist:['cat toys','puzzles','denim','art (photos or paintings)','records for his record player']},
+ {name:'Demo B',last:'Member',photo:marcus,mutuals:3,location:'San Francisco · near the Marina',bio:'Making a cozy home, one secondhand find at a time. Dog walks, good art, and lending a hand are my kind of weekend.',circleIds:['marina','ftmba','npd'],wishlist:['dog toys','any home furniture','patio furniture','rugs','art','help moving a couch']},
+ {name:'Demo C',last:'Member',photo:marcus,mutuals:3,location:'Channing Way · Berkeley',address:'Near campus',bio:'Dog lover, soccer teammate, and growing a little green wherever I can. Always happy to pass something useful along.',circleIds:['soccer','channing','ftmba','npd'],wishlist:['dog toys','dog beds','seeds for planting','help jumpstarting car','help moving couch','patio furniture','pots for plants','soccer gear']},
+ {name:'Demo D',last:'Member',photo:marcus,mutuals:3,location:'South Berkeley',bio:'A good book, fresh flowers, and a cozy jacket make my day. Love finding new homes for the things I no longer use.',circleIds:['south-berkeley','ftmba','npd'],wishlist:['lemon squeezer','books','fall/winter jackets','flower vases']},
  {name:'Alex',last:'Rivera',photo:marcus,mutuals:1,location:'Berkeley',bio:'A little less clutter, a little more connection. Happy to share with my circles.',circleIds:['channing'],wishlist:['household essentials']},
 ] as const;
 export function visibleWishlist(index:number,viewerIndex:number=selfIndex):readonly string[]{const person=contacts[index];if(!person)return [];return index===viewerIndex?person.wishlist:person.wishlist.filter(phrase=>!/^help\b/i.test(phrase));}

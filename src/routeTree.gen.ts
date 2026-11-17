@@ -10,31 +10,43 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as BrowseRouteImport } from './routes/browse'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DropRouteImport } from './routes/drop'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
-import { Route as OnboardingRouteImport } from './routes/onboarding'
-import { Route as PostRouteImport } from './routes/post'
-import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as StartCircleRouteImport } from './routes/start-circle'
 import { Route as TestSettingsRouteImport } from './routes/test-settings'
-import { Route as WishlistRouteImport } from './routes/wishlist'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedBrowseRouteImport } from './routes/_authenticated/browse'
+import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
+import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedPostRouteImport } from './routes/_authenticated/post'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedStartCircleRouteImport } from './routes/_authenticated/start-circle'
+import { Route as AuthenticatedSwipeRouteImport } from './routes/_authenticated/swipe'
+import { Route as AuthenticatedWishlistRouteImport } from './routes/_authenticated/wishlist'
 import { Route as CollectionsIdRouteImport } from './routes/collections.$id'
+import { Route as IIdRouteImport } from './routes/i.$id'
 import { Route as ItemIdRouteImport } from './routes/item.$id'
-import { Route as MessagesIndexRouteImport } from './routes/messages.index'
-import { Route as MessagesIdRouteImport } from './routes/messages.$id'
+import { Route as JoinTokenRouteImport } from './routes/join.$token'
 import { Route as MoveIdRouteImport } from './routes/move.$id'
-import { Route as NotificationsIndexRouteImport } from './routes/notifications.index'
 import { Route as NotificationsSettingsRouteImport } from './routes/notifications.settings'
+import { Route as AuthenticatedMessagesIndexRouteImport } from './routes/_authenticated/messages.index'
+import { Route as AuthenticatedMessagesIdRouteImport } from './routes/_authenticated/messages.$id'
+import { Route as AuthenticatedNotificationsIndexRouteImport } from './routes/_authenticated/notifications.index'
+import { Route as ApiPublicJobsExpirationsRouteImport } from './routes/api.public.jobs.expirations'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BrowseRoute = BrowseRouteImport.update({
-  id: '/browse',
-  path: '/browse',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DropRoute = DropRouteImport.update({
@@ -47,39 +59,65 @@ const LeaderboardRoute = LeaderboardRouteImport.update({
   path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OnboardingRoute = OnboardingRouteImport.update({
-  id: '/onboarding',
-  path: '/onboarding',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PostRoute = PostRouteImport.update({
-  id: '/post',
-  path: '/post',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StartCircleRoute = StartCircleRouteImport.update({
-  id: '/start-circle',
-  path: '/start-circle',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const TestSettingsRoute = TestSettingsRouteImport.update({
   id: '/test-settings',
   path: '/test-settings',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WishlistRoute = WishlistRouteImport.update({
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedBrowseRoute = AuthenticatedBrowseRouteImport.update({
+  id: '/browse',
+  path: '/browse',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPostRoute = AuthenticatedPostRouteImport.update({
+  id: '/post',
+  path: '/post',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedStartCircleRoute =
+  AuthenticatedStartCircleRouteImport.update({
+    id: '/start-circle',
+    path: '/start-circle',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSwipeRoute = AuthenticatedSwipeRouteImport.update({
+  id: '/swipe',
+  path: '/swipe',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedWishlistRoute = AuthenticatedWishlistRouteImport.update({
   id: '/wishlist',
   path: '/wishlist',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const CollectionsIdRoute = CollectionsIdRouteImport.update({
   id: '/collections/$id',
   path: '/collections/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IIdRoute = IIdRouteImport.update({
+  id: '/i/$id',
+  path: '/i/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ItemIdRoute = ItemIdRouteImport.update({
@@ -87,14 +125,9 @@ const ItemIdRoute = ItemIdRouteImport.update({
   path: '/item/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MessagesIndexRoute = MessagesIndexRouteImport.update({
-  id: '/messages/',
-  path: '/messages/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MessagesIdRoute = MessagesIdRouteImport.update({
-  id: '/messages/$id',
-  path: '/messages/$id',
+const JoinTokenRoute = JoinTokenRouteImport.update({
+  id: '/join/$token',
+  path: '/join/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MoveIdRoute = MoveIdRouteImport.update({
@@ -102,153 +135,211 @@ const MoveIdRoute = MoveIdRouteImport.update({
   path: '/move/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const NotificationsIndexRoute = NotificationsIndexRouteImport.update({
-  id: '/notifications/',
-  path: '/notifications/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const NotificationsSettingsRoute = NotificationsSettingsRouteImport.update({
   id: '/notifications/settings',
   path: '/notifications/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedMessagesIndexRoute =
+  AuthenticatedMessagesIndexRouteImport.update({
+    id: '/messages/',
+    path: '/messages/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMessagesIdRoute = AuthenticatedMessagesIdRouteImport.update({
+  id: '/messages/$id',
+  path: '/messages/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedNotificationsIndexRoute =
+  AuthenticatedNotificationsIndexRouteImport.update({
+    id: '/notifications/',
+    path: '/notifications/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const ApiPublicJobsExpirationsRoute =
+  ApiPublicJobsExpirationsRouteImport.update({
+    id: '/api/public/jobs/expirations',
+    path: '/api/public/jobs/expirations',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/browse': typeof BrowseRoute
+  '/auth': typeof AuthRoute
   '/drop': typeof DropRoute
   '/leaderboard': typeof LeaderboardRoute
-  '/onboarding': typeof OnboardingRoute
-  '/post': typeof PostRoute
-  '/profile': typeof ProfileRoute
-  '/start-circle': typeof StartCircleRoute
   '/test-settings': typeof TestSettingsRoute
-  '/wishlist': typeof WishlistRoute
+  '/admin': typeof AuthenticatedAdminRoute
+  '/browse': typeof AuthenticatedBrowseRoute
+  '/home': typeof AuthenticatedHomeRoute
+  '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/post': typeof AuthenticatedPostRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/start-circle': typeof AuthenticatedStartCircleRoute
+  '/swipe': typeof AuthenticatedSwipeRoute
+  '/wishlist': typeof AuthenticatedWishlistRoute
   '/collections/$id': typeof CollectionsIdRoute
+  '/i/$id': typeof IIdRoute
   '/item/$id': typeof ItemIdRoute
-  '/messages/$id': typeof MessagesIdRoute
+  '/join/$token': typeof JoinTokenRoute
   '/move/$id': typeof MoveIdRoute
   '/notifications/settings': typeof NotificationsSettingsRoute
-  '/messages/': typeof MessagesIndexRoute
-  '/notifications/': typeof NotificationsIndexRoute
+  '/messages/$id': typeof AuthenticatedMessagesIdRoute
+  '/messages/': typeof AuthenticatedMessagesIndexRoute
+  '/notifications/': typeof AuthenticatedNotificationsIndexRoute
+  '/api/public/jobs/expirations': typeof ApiPublicJobsExpirationsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/browse': typeof BrowseRoute
+  '/auth': typeof AuthRoute
   '/drop': typeof DropRoute
   '/leaderboard': typeof LeaderboardRoute
-  '/onboarding': typeof OnboardingRoute
-  '/post': typeof PostRoute
-  '/profile': typeof ProfileRoute
-  '/start-circle': typeof StartCircleRoute
   '/test-settings': typeof TestSettingsRoute
-  '/wishlist': typeof WishlistRoute
+  '/admin': typeof AuthenticatedAdminRoute
+  '/browse': typeof AuthenticatedBrowseRoute
+  '/home': typeof AuthenticatedHomeRoute
+  '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/post': typeof AuthenticatedPostRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/start-circle': typeof AuthenticatedStartCircleRoute
+  '/swipe': typeof AuthenticatedSwipeRoute
+  '/wishlist': typeof AuthenticatedWishlistRoute
   '/collections/$id': typeof CollectionsIdRoute
+  '/i/$id': typeof IIdRoute
   '/item/$id': typeof ItemIdRoute
-  '/messages/$id': typeof MessagesIdRoute
+  '/join/$token': typeof JoinTokenRoute
   '/move/$id': typeof MoveIdRoute
   '/notifications/settings': typeof NotificationsSettingsRoute
-  '/messages': typeof MessagesIndexRoute
-  '/notifications': typeof NotificationsIndexRoute
+  '/messages/$id': typeof AuthenticatedMessagesIdRoute
+  '/messages': typeof AuthenticatedMessagesIndexRoute
+  '/notifications': typeof AuthenticatedNotificationsIndexRoute
+  '/api/public/jobs/expirations': typeof ApiPublicJobsExpirationsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/browse': typeof BrowseRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
   '/drop': typeof DropRoute
   '/leaderboard': typeof LeaderboardRoute
-  '/onboarding': typeof OnboardingRoute
-  '/post': typeof PostRoute
-  '/profile': typeof ProfileRoute
-  '/start-circle': typeof StartCircleRoute
   '/test-settings': typeof TestSettingsRoute
-  '/wishlist': typeof WishlistRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/browse': typeof AuthenticatedBrowseRoute
+  '/_authenticated/home': typeof AuthenticatedHomeRoute
+  '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/post': typeof AuthenticatedPostRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/start-circle': typeof AuthenticatedStartCircleRoute
+  '/_authenticated/swipe': typeof AuthenticatedSwipeRoute
+  '/_authenticated/wishlist': typeof AuthenticatedWishlistRoute
   '/collections/$id': typeof CollectionsIdRoute
+  '/i/$id': typeof IIdRoute
   '/item/$id': typeof ItemIdRoute
-  '/messages/$id': typeof MessagesIdRoute
+  '/join/$token': typeof JoinTokenRoute
   '/move/$id': typeof MoveIdRoute
   '/notifications/settings': typeof NotificationsSettingsRoute
-  '/messages/': typeof MessagesIndexRoute
-  '/notifications/': typeof NotificationsIndexRoute
+  '/_authenticated/messages/$id': typeof AuthenticatedMessagesIdRoute
+  '/_authenticated/messages/': typeof AuthenticatedMessagesIndexRoute
+  '/_authenticated/notifications/': typeof AuthenticatedNotificationsIndexRoute
+  '/api/public/jobs/expirations': typeof ApiPublicJobsExpirationsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/browse'
+    | '/auth'
     | '/drop'
     | '/leaderboard'
+    | '/test-settings'
+    | '/admin'
+    | '/browse'
+    | '/home'
     | '/onboarding'
     | '/post'
     | '/profile'
     | '/start-circle'
-    | '/test-settings'
+    | '/swipe'
     | '/wishlist'
     | '/collections/$id'
+    | '/i/$id'
     | '/item/$id'
-    | '/messages/$id'
+    | '/join/$token'
     | '/move/$id'
     | '/notifications/settings'
+    | '/messages/$id'
     | '/messages/'
     | '/notifications/'
+    | '/api/public/jobs/expirations'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/browse'
+    | '/auth'
     | '/drop'
     | '/leaderboard'
+    | '/test-settings'
+    | '/admin'
+    | '/browse'
+    | '/home'
     | '/onboarding'
     | '/post'
     | '/profile'
     | '/start-circle'
-    | '/test-settings'
+    | '/swipe'
     | '/wishlist'
     | '/collections/$id'
+    | '/i/$id'
     | '/item/$id'
-    | '/messages/$id'
+    | '/join/$token'
     | '/move/$id'
     | '/notifications/settings'
+    | '/messages/$id'
     | '/messages'
     | '/notifications'
+    | '/api/public/jobs/expirations'
   id:
     | '__root__'
     | '/'
-    | '/browse'
+    | '/_authenticated'
+    | '/auth'
     | '/drop'
     | '/leaderboard'
-    | '/onboarding'
-    | '/post'
-    | '/profile'
-    | '/start-circle'
     | '/test-settings'
-    | '/wishlist'
+    | '/_authenticated/admin'
+    | '/_authenticated/browse'
+    | '/_authenticated/home'
+    | '/_authenticated/onboarding'
+    | '/_authenticated/post'
+    | '/_authenticated/profile'
+    | '/_authenticated/start-circle'
+    | '/_authenticated/swipe'
+    | '/_authenticated/wishlist'
     | '/collections/$id'
+    | '/i/$id'
     | '/item/$id'
-    | '/messages/$id'
+    | '/join/$token'
     | '/move/$id'
     | '/notifications/settings'
-    | '/messages/'
-    | '/notifications/'
+    | '/_authenticated/messages/$id'
+    | '/_authenticated/messages/'
+    | '/_authenticated/notifications/'
+    | '/api/public/jobs/expirations'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  BrowseRoute: typeof BrowseRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
   DropRoute: typeof DropRoute
   LeaderboardRoute: typeof LeaderboardRoute
-  OnboardingRoute: typeof OnboardingRoute
-  PostRoute: typeof PostRoute
-  ProfileRoute: typeof ProfileRoute
-  StartCircleRoute: typeof StartCircleRoute
   TestSettingsRoute: typeof TestSettingsRoute
-  WishlistRoute: typeof WishlistRoute
   CollectionsIdRoute: typeof CollectionsIdRoute
+  IIdRoute: typeof IIdRoute
   ItemIdRoute: typeof ItemIdRoute
-  MessagesIdRoute: typeof MessagesIdRoute
+  JoinTokenRoute: typeof JoinTokenRoute
   MoveIdRoute: typeof MoveIdRoute
   NotificationsSettingsRoute: typeof NotificationsSettingsRoute
-  MessagesIndexRoute: typeof MessagesIndexRoute
-  NotificationsIndexRoute: typeof NotificationsIndexRoute
+  ApiPublicJobsExpirationsRoute: typeof ApiPublicJobsExpirationsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -260,11 +351,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/browse': {
-      id: '/browse'
-      path: '/browse'
-      fullPath: '/browse'
-      preLoaderRoute: typeof BrowseRouteImport
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/drop': {
@@ -281,34 +379,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/onboarding': {
-      id: '/onboarding'
-      path: '/onboarding'
-      fullPath: '/onboarding'
-      preLoaderRoute: typeof OnboardingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/post': {
-      id: '/post'
-      path: '/post'
-      fullPath: '/post'
-      preLoaderRoute: typeof PostRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/start-circle': {
-      id: '/start-circle'
-      path: '/start-circle'
-      fullPath: '/start-circle'
-      preLoaderRoute: typeof StartCircleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/test-settings': {
       id: '/test-settings'
       path: '/test-settings'
@@ -316,18 +386,81 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TestSettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/wishlist': {
-      id: '/wishlist'
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/browse': {
+      id: '/_authenticated/browse'
+      path: '/browse'
+      fullPath: '/browse'
+      preLoaderRoute: typeof AuthenticatedBrowseRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/home': {
+      id: '/_authenticated/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof AuthenticatedHomeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/onboarding': {
+      id: '/_authenticated/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/post': {
+      id: '/_authenticated/post'
+      path: '/post'
+      fullPath: '/post'
+      preLoaderRoute: typeof AuthenticatedPostRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/start-circle': {
+      id: '/_authenticated/start-circle'
+      path: '/start-circle'
+      fullPath: '/start-circle'
+      preLoaderRoute: typeof AuthenticatedStartCircleRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/swipe': {
+      id: '/_authenticated/swipe'
+      path: '/swipe'
+      fullPath: '/swipe'
+      preLoaderRoute: typeof AuthenticatedSwipeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/wishlist': {
+      id: '/_authenticated/wishlist'
       path: '/wishlist'
       fullPath: '/wishlist'
-      preLoaderRoute: typeof WishlistRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedWishlistRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/collections/$id': {
       id: '/collections/$id'
       path: '/collections/$id'
       fullPath: '/collections/$id'
       preLoaderRoute: typeof CollectionsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/i/$id': {
+      id: '/i/$id'
+      path: '/i/$id'
+      fullPath: '/i/$id'
+      preLoaderRoute: typeof IIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/item/$id': {
@@ -337,18 +470,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ItemIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/messages/': {
-      id: '/messages/'
-      path: '/messages'
-      fullPath: '/messages/'
-      preLoaderRoute: typeof MessagesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/messages/$id': {
-      id: '/messages/$id'
-      path: '/messages/$id'
-      fullPath: '/messages/$id'
-      preLoaderRoute: typeof MessagesIdRouteImport
+    '/join/$token': {
+      id: '/join/$token'
+      path: '/join/$token'
+      fullPath: '/join/$token'
+      preLoaderRoute: typeof JoinTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/move/$id': {
@@ -358,13 +484,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MoveIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/notifications/': {
-      id: '/notifications/'
-      path: '/notifications'
-      fullPath: '/notifications/'
-      preLoaderRoute: typeof NotificationsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/notifications/settings': {
       id: '/notifications/settings'
       path: '/notifications/settings'
@@ -372,27 +491,84 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NotificationsSettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/messages/': {
+      id: '/_authenticated/messages/'
+      path: '/messages'
+      fullPath: '/messages/'
+      preLoaderRoute: typeof AuthenticatedMessagesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/messages/$id': {
+      id: '/_authenticated/messages/$id'
+      path: '/messages/$id'
+      fullPath: '/messages/$id'
+      preLoaderRoute: typeof AuthenticatedMessagesIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/notifications/': {
+      id: '/_authenticated/notifications/'
+      path: '/notifications'
+      fullPath: '/notifications/'
+      preLoaderRoute: typeof AuthenticatedNotificationsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/public/jobs/expirations': {
+      id: '/api/public/jobs/expirations'
+      path: '/api/public/jobs/expirations'
+      fullPath: '/api/public/jobs/expirations'
+      preLoaderRoute: typeof ApiPublicJobsExpirationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedBrowseRoute: typeof AuthenticatedBrowseRoute
+  AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
+  AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedPostRoute: typeof AuthenticatedPostRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedStartCircleRoute: typeof AuthenticatedStartCircleRoute
+  AuthenticatedSwipeRoute: typeof AuthenticatedSwipeRoute
+  AuthenticatedWishlistRoute: typeof AuthenticatedWishlistRoute
+  AuthenticatedMessagesIdRoute: typeof AuthenticatedMessagesIdRoute
+  AuthenticatedMessagesIndexRoute: typeof AuthenticatedMessagesIndexRoute
+  AuthenticatedNotificationsIndexRoute: typeof AuthenticatedNotificationsIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedBrowseRoute: AuthenticatedBrowseRoute,
+  AuthenticatedHomeRoute: AuthenticatedHomeRoute,
+  AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedPostRoute: AuthenticatedPostRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedStartCircleRoute: AuthenticatedStartCircleRoute,
+  AuthenticatedSwipeRoute: AuthenticatedSwipeRoute,
+  AuthenticatedWishlistRoute: AuthenticatedWishlistRoute,
+  AuthenticatedMessagesIdRoute: AuthenticatedMessagesIdRoute,
+  AuthenticatedMessagesIndexRoute: AuthenticatedMessagesIndexRoute,
+  AuthenticatedNotificationsIndexRoute: AuthenticatedNotificationsIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  BrowseRoute: BrowseRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
   DropRoute: DropRoute,
   LeaderboardRoute: LeaderboardRoute,
-  OnboardingRoute: OnboardingRoute,
-  PostRoute: PostRoute,
-  ProfileRoute: ProfileRoute,
-  StartCircleRoute: StartCircleRoute,
   TestSettingsRoute: TestSettingsRoute,
-  WishlistRoute: WishlistRoute,
   CollectionsIdRoute: CollectionsIdRoute,
+  IIdRoute: IIdRoute,
   ItemIdRoute: ItemIdRoute,
-  MessagesIdRoute: MessagesIdRoute,
+  JoinTokenRoute: JoinTokenRoute,
   MoveIdRoute: MoveIdRoute,
   NotificationsSettingsRoute: NotificationsSettingsRoute,
-  MessagesIndexRoute: MessagesIndexRoute,
-  NotificationsIndexRoute: NotificationsIndexRoute,
+  ApiPublicJobsExpirationsRoute: ApiPublicJobsExpirationsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

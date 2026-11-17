@@ -52,8 +52,8 @@ export type InboxItem = {
 };
 export const inboxItems: InboxItem[] = [
   { id: 'n1', group: 'Today', kind: 'drop', text: 'The Sunday Drop is live · 31 new items, 4 match your wishlist', detail: 'Sunday Drop', time: '10:00am', to: '/drop' },
-  { id: 'n2', group: 'Today', kind: 'match', text: 'New match: crinkle tunnel cat toy from Andrew (friend), 0.2 mi', detail: 'Matches your wishlist: cat toys', time: '9:12am', to: 'offer', offerMatch: 'crinkle tunnel' },
-  { id: 'n3', group: 'This week', kind: 'claim', text: 'Mary claimed your puzzle · arrange pickup', detail: 'Your offers', time: 'Thu', to: '/profile' },
+  { id: 'n2', group: 'Today', kind: 'match', text: 'New match: crinkle tunnel cat toy from Demo A (friend), 0.2 mi', detail: 'Matches your wishlist: cat toys', time: '9:12am', to: 'offer', offerMatch: 'crinkle tunnel' },
+  { id: 'n3', group: 'This week', kind: 'claim', text: 'Demo B claimed your puzzle · arrange pickup', detail: 'Your offers', time: 'Thu', to: '/profile' },
   { id: 'n4', group: 'This week', kind: 'queue', text: 'Your moisturizer moved to the next person in line', detail: 'Your offers', time: 'Wed', to: 'offer', offerMatch: 'moistur' },
-  { id: 'n5', group: 'Earlier', kind: 'help', text: 'Andrew offered to help move a couch Saturday · Friend of a friend', detail: 'Offer of help', time: 'Sep 29', to: 'offer', offerMatch: 'move furniture' },
+  { id: 'n5', group: 'Earlier', kind: 'help', text: 'Demo A offered to help move a couch Saturday · Friend of a friend', detail: 'Offer of help', time: 'Sep 29', to: 'offer', offerMatch: 'move furniture' },
 ];

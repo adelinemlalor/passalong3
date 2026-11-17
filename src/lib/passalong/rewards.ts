@@ -30,13 +30,13 @@ export type BadgeId = 'first-pass' | 'zero-waste' | 'plant-parent' | 'pet-pal' |
 export type Badge = { id: BadgeId; name: string; emoji: string; description: string; howTo: string; earned?: string; story?: string };
 
 export const badges: Badge[] = [
-  { id: 'first-pass', name: 'First Pass', emoji: '🎁', description: 'Gave away your first item', howTo: 'Pass along your first item.', earned: 'Mar 12, 2025', story: 'You gave Mary a puzzle on Mar 12 — the first of many good things.' },
+  { id: 'first-pass', name: 'First Pass', emoji: '🎁', description: 'Gave away your first item', howTo: 'Pass along your first item.', earned: 'Mar 12, 2025', story: 'You gave Demo B a puzzle on Mar 12 — the first of many good things.' },
   { id: 'zero-waste', name: 'Zero Waste Week', emoji: '♻️', description: 'Passed along 3+ items in one week', howTo: 'Pass along 3 items in a single week.' },
-  { id: 'plant-parent', name: 'Plant Parent', emoji: '🌱', description: 'Shared seedlings, cuttings, or produce', howTo: 'Share seedlings, cuttings, or produce.', earned: 'Sep 21, 2026', story: 'You shared 6 tomato seedlings with Olivia on Sep 21.' },
-  { id: 'pet-pal', name: 'Pet Pal', emoji: '🐾', description: 'Passed along pet supplies', howTo: 'Pass along pet toys, treats, or gear.', earned: 'Aug 30, 2026', story: 'You gave Andrew a crinkle tunnel her cat now loves on Aug 30.' },
+  { id: 'plant-parent', name: 'Plant Parent', emoji: '🌱', description: 'Shared seedlings, cuttings, or produce', howTo: 'Share seedlings, cuttings, or produce.', earned: 'Sep 21, 2026', story: 'You shared 6 tomato seedlings with Demo D on Sep 21.' },
+  { id: 'pet-pal', name: 'Pet Pal', emoji: '🐾', description: 'Passed along pet supplies', howTo: 'Pass along pet toys, treats, or gear.', earned: 'Aug 30, 2026', story: 'You gave Demo A a crinkle tunnel her cat now loves on Aug 30.' },
   { id: 'helping-hand', name: 'Helping Hand', emoji: '🤝', description: 'Helped someone in your circle with a service', howTo: 'Help someone in your circle with a service.', earned: 'Jul 19, 2026', story: 'You watered Alex’s plants for a week while he was away, Jul 19.' },
   { id: 'steady-giver', name: 'Steady Giver', emoji: '🌿', description: 'Passed something along 4 weeks in a row', howTo: 'Pass something along 4 weeks in a row. You’re at 3 of 4.' },
-  { id: 'trusted', name: 'Trusted', emoji: '🛡️', description: 'Received 5 vouches', howTo: 'Receive 5 vouches from your circles.', earned: 'Oct 4, 2026', story: 'Mary’s vouch on Oct 4 was your fifth. Your circles trust you.' },
+  { id: 'trusted', name: 'Trusted', emoji: '🛡️', description: 'Received 5 vouches', howTo: 'Receive 5 vouches from your circles.', earned: 'Oct 4, 2026', story: 'Demo B’s vouch on Oct 4 was your fifth. Your circles trust you.' },
   { id: 'moving-hero', name: 'Moving Day Helper', emoji: '📦', description: 'Helped someone move', howTo: 'Help someone in your circle move furniture or boxes.' },
 ];
 

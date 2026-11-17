@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1794890246421,
+      "tag": "0000_real_circle_product",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794890302582,
+      "tag": "0001_circle_actions_matching",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794890339668,
+      "tag": "0002_safe_public_previews",
+      "breakpoints": true
+    }
+  ]
+}

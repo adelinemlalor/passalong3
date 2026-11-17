@@ -4,8 +4,8 @@ import { initialWishlist } from '@/lib/passalong/matching';
 
 describe('Team profiles', () => {
  it('uses Adeline as the current user with her eight wishes', () => {
-  expect(contacts[selfIndex].name).toBe('Adeline');
-  expect(contacts[selfIndex].address).toBe('1501 Channing Way, Berkeley, CA 94703');
+  expect(contacts[selfIndex].name).toBe('Demo C');
+  expect(contacts[selfIndex].address).toBe('Near campus');
   expect(initialWishlist.map(w=>w.phrase)).toEqual(['dog toys','dog beds','seeds for planting','help jumpstarting car','help moving couch','patio furniture','pots for plants','soccer gear']);
  });
  it('keeps Andrew’s wishlist and South Berkeley membership', () => {
