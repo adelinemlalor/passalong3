@@ -1,5 +1,5 @@
 # Passalong
-- [ ] Complete Part 6C pickup styles, live private chat, explicit time/spot sharing, calendar, thanks and in-app alerts; exclude email and push for now.
+- [x] Complete Part 6C pickup styles, live private chat, explicit time/spot sharing, calendar, thanks and in-app alerts; exclude email and push for now.
 - [x] Add Part 6B database-managed categories, custom-category matching and promotion, fuller profiles and private member views.
 - [x] Verify category chips, custom matching, admin edits, profile settings and phone/desktop flows; temporary records removed.
 - [ ] Claim/message email delivery — intentionally deferred by request; no sending domain configured.
