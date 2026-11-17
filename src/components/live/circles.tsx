@@ -89,7 +89,9 @@ export function CirclePage({id,created=false}:{id:string;created?:boolean}) {
 }
 export function CircleMember({id,memberId}:{id:string;memberId:string}) {
   const {data}=useLive(),fetchMembers=useServerFn(getCircleMembers);
-  const result=useQuery({queryKey:["circle-members",id],queryFn:()=>fetchMembers({data:{id}}),enabled:data.circles.some(c=>c.id===id)}),member=result.data?.find(m=>m.id===memberId&&m.status==="active");
+  const isMember=data.circles.some(c=>c.id===id);
+  const result=useQuery({queryKey:["circle-members",id],queryFn:()=>fetchMembers({data:{id}}),enabled:isMember}),member=isMember?result.data?.find(m=>m.id===memberId&&m.status==="active"):undefined;
+  if(!isMember)return <p>This profile is private or unavailable.</p>;
   return <div className="flow-page"><Button asChild variant="link"><Link to="/c/$id" params={{id}}>Back to circle</Link></Button>{result.isPending?<p>Loading member…</p>:!member?<p>This profile is private or unavailable.</p>:<>{member.photo&&<img className="avatar my-5" src={member.photo} alt={member.display_name}/>}<h1>{member.display_name}</h1><p className="mt-4 whitespace-pre-line break-words">{member.bio}</p><p className="text-muted-foreground mt-4">{member.general_area}</p><p className="text-sm mt-3">Joined {new Date(member.joined_at).toLocaleDateString("en-US",{month:"long",year:"numeric"})}</p></>}</div>;
 }
 export function FindCircles() {
