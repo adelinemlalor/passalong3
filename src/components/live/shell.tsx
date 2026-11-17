@@ -10,12 +10,13 @@ import {
   Bell,
   HandHeart,
   LogOut,
+  Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useLive } from "./context";
 export function LiveShell({ children }: { children: ReactNode }) {
-  const { data, circleId, setCircleId } = useLive(),
+  const { data, circleFilter, setCircleId } = useLive(),
     location = useLocation(),
     navigate = useNavigate(),
     q = useQueryClient();
@@ -41,26 +42,21 @@ export function LiveShell({ children }: { children: ReactNode }) {
             Passalong<span className="text-primary">.</span>
           </Link>
           <div className="flex items-center gap-2 min-w-0">
-            <span className="live-circle-label">
-              {data.circles.find((c) => c.id === circleId)?.name ?? "Your circle"}
-            </span>
-            {data.circles.length > 1 && (
+            <Button asChild variant="ghost" size="icon" title="My circles"><Link to="/circles" aria-label="My circles"><Users/></Link></Button>
               <select
                 aria-label="Circle"
-                value={circleId}
+                value={circleFilter}
                 onChange={(e) => setCircleId(e.target.value)}
-                className="text-input"
+                className="text-input circle-switcher"
               >
-                <option value={circleId}>Switch circle</option>
+                <option value="">All my circles</option>
                 {data.circles
-                  .filter((c) => c.id !== circleId)
                   .map((c) => (
                     <option value={c.id} key={c.id}>
                       {c.name}
                     </option>
                   ))}
               </select>
-            )}
             <Button variant="ghost" size="icon" asChild title="Notifications">
               <Link to="/notifications" aria-label="Notifications">
                 <Bell />

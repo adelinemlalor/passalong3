@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Copy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -11,6 +10,8 @@ import { ItemCard } from "./feed";
 export function Profile() {
   const { data, act, busy } = useLive(),
     [name, setName] = useState(data.profile?.display_name ?? ""),
+    [bio, setBio] = useState(data.profile?.bio ?? ""),
+    [area, setArea] = useState(data.profile?.general_area ?? ""),
     [avatar, setAvatar] = useState(""),
     [saving, setSaving] = useState(false),
     [notificationsOn, setNotificationsOn] = useState(data.profile?.match_notifications ?? true);
@@ -31,7 +32,7 @@ export function Profile() {
         if (upload.error) throw upload.error;
         avatar_url = path;
       }
-      await act("profile", { display_name: name, avatar_url });
+      await act("profile", { display_name: name, avatar_url, bio, general_area:area });
       setAvatar("");
       toast.success("Profile saved.");
     } catch (e) {
@@ -62,6 +63,8 @@ export function Profile() {
             onChange={(e) => setName(e.target.value)}
           />
         </label>
+        <label className="form-label">Bio<textarea className="text-input" maxLength={200} rows={3} value={bio} onChange={e=>setBio(e.target.value)}/></label>
+        <label className="form-label">General area<input className="text-input" maxLength={80} value={area} placeholder="South Berkeley" onChange={e=>setArea(e.target.value)}/><span className="text-sm text-muted-foreground">A neighborhood or landmark, not your address.</span></label>
         <details>
           <summary className="text-sm cursor-pointer">Change profile photo (optional)</summary>
           <div className="mt-3">
@@ -82,23 +85,12 @@ export function Profile() {
             </Button>
           )}
         </div>
+        <Button asChild variant="outline" className="mt-4"><Link to="/circles">View my circles</Link></Button>
         {data.circles.map((c) => (
           <div key={c.id} className="border-b py-4 last:border-b-0">
             <div className="live-wish-row">
               <strong>{c.name}</strong>
-              <Button
-              variant="outline"
-              size="sm"
-              onClick={async () => {
-                await navigator.clipboard.writeText(
-                  `${window.location.origin}/join/${c.invite_token}`,
-                );
-                toast.success("Invite link copied.");
-              }}
-            >
-              <Copy />
-               Invite link
-            </Button>
+              <Button asChild variant="outline" size="sm"><Link to="/c/$id" params={{id:c.id}}>Open</Link></Button>
             </div>
             <p className="text-sm text-muted-foreground mt-2">
               {data.people

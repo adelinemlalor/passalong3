@@ -20,9 +20,11 @@ export function Post() {
     [nudge, setNudge] = useState(false),
     [uploading, setUploading] = useState(false),
     [failure, setFailure] = useState("");
+  const [audience,setAudience] = useState(data.circles.map(circle=>circle.id));
   if (!circleId) return <NoCircle />;
   async function review() {
-    await act("event", { circle_id: circleId, name: "post_nudge_shown" });
+    if(!audience.length)return;
+    await act("event", { circle_id: audience[0] ?? circleId, name: "post_nudge_shown" });
     setNudge(true);
   }
   async function publish() {
@@ -40,7 +42,7 @@ export function Post() {
       if (error) throw error;
       photoUploaded = true;
       const result = await act("post", {
-        circle_id: circleId,
+        circle_ids: audience,
         title,
         description,
         condition,
@@ -132,7 +134,8 @@ export function Post() {
             onChange={(e) => setDescription(e.target.value)}
           />
         </label>
-        <Button type="submit" disabled={!image || busy}>
+        <fieldset className="grid gap-3"><legend className="form-label mb-3">Who can see it?</legend>{data.circles.map(circle=><label className="flex gap-3 items-center" key={circle.id}><input type="checkbox" checked={audience.includes(circle.id)} onChange={e=>setAudience(old=>e.target.checked?[...old,circle.id]:old.filter(id=>id!==circle.id))}/>{circle.name}</label>)}{!audience.length&&<p role="alert">Choose at least one circle.</p>}</fieldset>
+        <Button type="submit" disabled={!image || !audience.length || busy}>
           Post
         </Button>
       </form>

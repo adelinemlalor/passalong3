@@ -53,7 +53,7 @@ export function MemberDetail({ id }: { id: string }) {
           <img src={item.photo_url} alt={item.title} />
         </div>
         <section className="detail-info">
-          <p className="eyebrow">{data.circles.find((c) => c.id === item.circle_id)?.name}</p>
+          <p className="eyebrow">{data.circles.filter((c) => item.circle_ids.includes(c.id)).map(c=>c.name).join(" · ")}</p>
           <h1>{item.title}</h1>
           <p className="text-sm text-muted-foreground">
             {item.condition} · {item.category}

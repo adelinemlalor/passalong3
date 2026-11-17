@@ -48,6 +48,13 @@ export const EVENT_NAMES = [
   "notify_me_tapped",
   "clearout_interest_yes",
   "clearout_interest_no",
+  "circle_created",
+  "circle_search_opened",
+  "circle_join_requested",
+  "circle_join_approved",
+  "circle_joined_from_search",
+  "circle_left",
+  "member_removed",
 ] as const;
 export type EventName = (typeof EVENT_NAMES)[number];
 import { matchItemWish, words } from "@/lib/matching";

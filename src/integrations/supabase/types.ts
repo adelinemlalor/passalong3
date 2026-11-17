@@ -57,16 +57,22 @@ export type Database = {
         Row: {
           circle_id: string
           joined_at: string
+          role: string
+          status: string
           user_id: string
         }
         Insert: {
           circle_id: string
           joined_at?: string
+          role?: string
+          status?: string
           user_id: string
         }
         Update: {
           circle_id?: string
           joined_at?: string
+          role?: string
+          status?: string
           user_id?: string
         }
         Relationships: [
@@ -89,29 +95,61 @@ export type Database = {
       circles: {
         Row: {
           created_at: string
+          description: string
+          email_domain: string | null
+          general_area: string
           id: string
           invite_token: string
           is_test: boolean
+          join_rule: string
+          members_can_invite: boolean
           name: string
+          owner_id: string | null
+          photo_url: string
           required_email_domain: string | null
+          type: string
         }
         Insert: {
           created_at?: string
+          description?: string
+          email_domain?: string | null
+          general_area?: string
           id?: string
           invite_token?: string
           is_test?: boolean
+          join_rule?: string
+          members_can_invite?: boolean
           name: string
+          owner_id?: string | null
+          photo_url?: string
           required_email_domain?: string | null
+          type?: string
         }
         Update: {
           created_at?: string
+          description?: string
+          email_domain?: string | null
+          general_area?: string
           id?: string
           invite_token?: string
           is_test?: boolean
+          join_rule?: string
+          members_can_invite?: boolean
           name?: string
+          owner_id?: string | null
+          photo_url?: string
           required_email_domain?: string | null
+          type?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "circles_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       claims: {
         Row: {
@@ -206,6 +244,39 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      item_circles: {
+        Row: {
+          circle_id: string
+          item_id: string
+          position: number
+        }
+        Insert: {
+          circle_id: string
+          item_id: string
+          position?: number
+        }
+        Update: {
+          circle_id?: string
+          item_id?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_circles_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "circles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "item_circles_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
             referencedColumns: ["id"]
           },
         ]
@@ -451,27 +522,33 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string
           clearout_choice: boolean | null
           created_at: string
           display_name: string
+          general_area: string
           id: string
           match_notifications: boolean
           onboarded: boolean
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string
           clearout_choice?: boolean | null
           created_at?: string
           display_name?: string
+          general_area?: string
           id: string
           match_notifications?: boolean
           onboarded?: boolean
         }
         Update: {
           avatar_url?: string | null
+          bio?: string
           clearout_choice?: boolean | null
           created_at?: string
           display_name?: string
+          general_area?: string
           id?: string
           match_notifications?: boolean
           onboarded?: boolean
@@ -605,7 +682,23 @@ export type Database = {
         Args: { expected: number; pairs: Json }
         Returns: boolean
       }
+      circle_action: { Args: { action: string; payload?: Json }; Returns: Json }
+      circle_members_detail: {
+        Args: { circle: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          display_name: string
+          general_area: string
+          id: string
+          joined_at: string
+          role: string
+          status: string
+        }[]
+      }
       clean_text: { Args: { t: string }; Returns: string }
+      find_circles: { Args: never; Returns: Json }
+      has_item_access: { Args: { item: string }; Returns: boolean }
       invite_preview: {
         Args: { token: string }
         Returns: {
@@ -633,12 +726,18 @@ export type Database = {
           id: string
         }[]
       }
+      my_circles: { Args: never; Returns: Json }
       normal_words: { Args: { t: string }; Returns: string[] }
       passalong_action: {
         Args: { action: string; payload?: Json }
         Returns: Json
       }
+      passalong_legacy_action: {
+        Args: { action: string; payload?: Json }
+        Returns: Json
+      }
       process_due: { Args: never; Returns: undefined }
+      safe_general_area: { Args: { t: string }; Returns: boolean }
       wish_matches: {
         Args: { cat: string; p: string; t: string }
         Returns: boolean

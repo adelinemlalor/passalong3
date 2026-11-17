@@ -25,7 +25,6 @@ export function Admin() {
     synonymsFn = useServerFn(getSynonyms),
     membersFn = useServerFn(getAdminMembers),
     [testUser,setTestUser] = useState(""),
-    [name, setName] = useState(""),
     [category, setCategory] = useState("Garden"),
     [words, setWords] = useState("");
   const metrics = useQuery({
@@ -52,32 +51,10 @@ export function Admin() {
     <div className="live-admin">
       <h1>Circle admin</h1>
       <Button className="mt-4" asChild variant="outline"><Link to="/match-tester">Match tester</Link></Button>
-      <section className="live-section"><h2>Circle access</h2>{data.circles.map(circle=><div className="border-b py-5" key={circle.id}><h3>{circle.name}{circle.is_test ? " · Test" : ""}</h3><p className="text-sm text-muted-foreground my-3">{circle.required_email_domain ? `Verified @${circle.required_email_domain} sign-in required` : circle.is_test ? "Admin-added test accounts only" : "Invite link required"}</p><Button variant="outline" disabled={busy} onClick={async()=>{await act("rotate_invite",{circle_id:circle.id});toast.success("New invite ready in your profile. The old invite no longer works.");}}>Regenerate invite link</Button>{members.data?.filter(m=>m.circle_id===circle.id).map(m=><div className="live-wish-row" key={m.user_id}><span>{m.display_name}</span>{m.user_id!==data.userId && <Button variant="ghost" disabled={busy} onClick={async()=>{await act("remove_member",{circle_id:circle.id,user_id:m.user_id});await members.refetch();}}>Remove member</Button>}</div>)}{circle.is_test && <form className="flex flex-wrap gap-3 mt-3" onSubmit={async e=>{e.preventDefault();await act("add_test_member",{circle_id:circle.id,user_id:testUser});setTestUser("");await members.refetch();}}><label className="form-label">Test account ID<input required className="text-input" value={testUser} onChange={e=>setTestUser(e.target.value)} /></label><Button type="submit" disabled={busy}>Add test account</Button></form>}</div>)}{!data.circles.some(c=>c.is_test) && <Button className="mt-4" variant="outline" disabled={busy} onClick={()=>act("create_test_circle")}>Create Test circle</Button>}</section>
+      <section className="live-section"><h2>Circle access</h2>{data.adminCircles.map(circle=><div className="border-b py-5" key={circle.id}><h3>{circle.name}{circle.is_test ? " · Test" : ""}</h3><p className="text-sm text-muted-foreground my-3">{circle.required_email_domain ? `Verified @${circle.required_email_domain} sign-in required` : circle.is_test ? "Admin-added test accounts only" : "Invite link required"}</p><Button variant="outline" disabled={busy} onClick={async()=>{await act("rotate_invite",{circle_id:circle.id});toast.success("The old invite no longer works. Members can copy the new invite from My circles.");}}>Regenerate invite link</Button>{members.data?.filter(m=>m.circle_id===circle.id).map(m=><div className="live-wish-row" key={m.user_id}><span>{m.display_name}</span>{m.user_id!==data.userId && <Button variant="ghost" disabled={busy} onClick={async()=>{await act("remove_member",{circle_id:circle.id,user_id:m.user_id});await members.refetch();}}>Remove member</Button>}</div>)}{circle.is_test && <form className="flex flex-wrap gap-3 mt-3" onSubmit={async e=>{e.preventDefault();await act("add_test_member",{circle_id:circle.id,user_id:testUser});setTestUser("");await members.refetch();}}><label className="form-label">Test account ID<input required className="text-input" value={testUser} onChange={e=>setTestUser(e.target.value)} /></label><Button type="submit" disabled={busy}>Add test account</Button></form>}</div>)}{!data.adminCircles.some(c=>c.is_test) && <Button className="mt-4" variant="outline" disabled={busy} onClick={()=>act("create_test_circle")}>Create Test circle</Button>}</section>
       <section className="live-section">
         <h2>Create a circle</h2>
-        <form
-          className="live-wish-form"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            await act("create_circle", { name });
-            setName("");
-            toast.success("Circle created. Copy its invite link from your profile.");
-          }}
-        >
-          <label className="form-label">
-            Circle name
-            <input
-              className="text-input"
-              maxLength={100}
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </label>
-          <Button type="submit" disabled={busy}>
-            Create circle
-          </Button>
-        </form>
+        <Button asChild className="mt-4"><Link to="/start-circle">Start a circle</Link></Button>
       </section>
       <section className="live-section">
         <h2>Weekly activity</h2>

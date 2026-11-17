@@ -12,6 +12,7 @@ const Context = createContext<{
   data: LiveData;
   circleId: string;
   setCircleId: (id: string) => void;
+  circleFilter: string;
   act: (
     action: ActionInput["action"],
     payload?: ActionInput["payload"],
@@ -53,6 +54,7 @@ export function LiveProvider({ children }: { children: ReactNode }) {
         <Failure retry={() => { void q.invalidateQueries({ queryKey: liveQueryKey }); }} />
       </main>
     );
+  const circleFilter = data.circles.some((c) => c.id === selected) ? selected : "";
   const circleId = data.circles.some((c) => c.id === selected)
     ? selected
     : (data.circles[0]?.id ?? "");
@@ -61,6 +63,7 @@ export function LiveProvider({ children }: { children: ReactNode }) {
       value={{
         data,
         circleId,
+        circleFilter,
         setCircleId: setSelected,
         act: (action, payload = {}) => mutation.mutateAsync({ action, payload: { ...payload, ...(action === "clearout" ? { circle_id: circleId } : {}) } }),
         busy: mutation.isPending,

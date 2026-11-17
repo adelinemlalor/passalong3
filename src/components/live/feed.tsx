@@ -65,6 +65,7 @@ export function NoCircle() {
     <div className="empty-state">
       <h1>Your circle is waiting</h1>
       <p>Open an invite link from your circle to join.</p>
+      <div className="flex flex-wrap justify-center gap-3 mt-5"><Button asChild><Link to="/start-circle">Start a circle</Link></Button><Button asChild variant="outline"><Link to="/find-circles">Find circles near you</Link></Button></div>
     </div>
   );
 }
@@ -83,13 +84,13 @@ function rank(items: LiveItem[], all: LiveItem[]) {
   );
 }
 export function Feed({ browse = false, initialCategory }: { browse?: boolean; initialCategory?: string | undefined }) {
-  const { data, circleId, act, busy } = useLive();
+  const { data, circleId, circleFilter, setCircleId, act, busy } = useLive();
   const [search, setSearch] = useState(""),
     [category, setCategory] = useState(initialCategory ?? "All");
   if (!circleId) return <NoCircle />;
-  const circle = data.circles.find((c) => c.id === circleId);
+  const circle = data.circles.find((c) => c.id === circleFilter);
   const items = rank(
-    data.items.filter((i) => i.circle_id === circleId && available(i)),
+    data.items.filter((i) => (!circleFilter || i.circle_ids.includes(circleFilter)) && available(i)),
     data.items,
   );
   const filtered = items.filter(
@@ -113,7 +114,7 @@ export function Feed({ browse = false, initialCategory }: { browse?: boolean; in
     <div className="live-feed">
       <div className="live-heading">
         <div>
-          <p className="eyebrow">{circle?.name}</p>
+          <p className="eyebrow">{circle?.name ?? "All my circles"}</p>
           <h1>{browse ? "Browse your circle" : "Good things, passed along"}</h1>
           <p>
             {items.length} {items.length === 1 ? "thing is" : "things are"} available in your circle
@@ -127,6 +128,7 @@ export function Feed({ browse = false, initialCategory }: { browse?: boolean; in
           </Link>
         </Button>
       </div>
+      <label className="form-label mb-5">Circle filter<select className="text-input" aria-label="Filter items by circle" value={circleFilter} onChange={e=>setCircleId(e.target.value)}><option value="">All my circles</option>{data.circles.map(c=><option value={c.id} key={c.id}>{c.name}</option>)}</select></label>
       {!browse && data.profile?.clearout_choice === null && (
         <aside className="clearout-card">
           <p>
@@ -206,7 +208,7 @@ export function Feed({ browse = false, initialCategory }: { browse?: boolean; in
   );
 }
 export function Swipe() {
-  const { data, circleId, act, busy } = useLive(),
+  const { data, circleId, circleFilter, act, busy } = useLive(),
     navigate = useNavigate();
   const [sheet, setSheet] = useState(false),
     [missed, setMissed] = useState<LiveItem | null>(null),
@@ -214,7 +216,7 @@ export function Swipe() {
   const items = rank(
     data.items.filter(
       (i) =>
-        i.circle_id === circleId &&
+        (!circleFilter || i.circle_ids.includes(circleFilter)) &&
         i.giver_id !== data.userId &&
         available(i) &&
         !data.passes.some((p) => p.item_id === i.id),

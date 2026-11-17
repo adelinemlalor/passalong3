@@ -23,3 +23,6 @@
 - Keep global visual roles in semantic CSS tokens and reuse the Button component; this preserves theming and the familiar visual style.
 - Keep expiration, reminders and quiet-hour match delivery in one authenticated hourly job, while claim checks enforce exact deadlines transactionally; this bounds scheduled work.
 - Keep analytics columns limited to event type, actor, item, circle, timestamp and test marker; this makes private text impossible to attach to an event and isolates test activity.
+- Keep circle ownership and active/pending membership transactional in circle_action, separate from app-admin roles; owner actions and the five-circle cap must never depend on browser state.
+- Use item_circles for inventory, claims, photo access, notifications and matching eligibility; retain items.circle_id only as first-selected preview and event attribution to preserve existing links.
+- Return circle invite tokens only through permission-scoped my_circles; discovery and private member profiles use narrow authenticated RPCs with signed private photos.

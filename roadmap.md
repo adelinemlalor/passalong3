@@ -1,4 +1,6 @@
 # Passalong
+- [ ] Add Part 6A circle ownership, discovery, member pages and multi-circle posting with database visibility safeguards.
+- [ ] Verify Part 6A joining, owner actions, shared-item claims and phone/desktop access with temporary accounts.
 - [x] Verify phone and desktop tab/control parity; expose desktop categories and chat replies without horizontal scrolling; rerun posting, claims, messaging, pickup, thanks, and history on both sizes.
 - [x] Diagnose frozen tabs after invite sign-up and verify navigation and actions with a real signed-in session on phone and desktop.
 - [x] Build Part 5 durable failure screens and disclosure page.

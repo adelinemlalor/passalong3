@@ -4,6 +4,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 import { stripMarkup, validText } from "./safety";
+import type { CircleSummary } from "./circles.functions";
 
 function publicClient() {
   const url = process.env["SUPABASE_URL"],
@@ -58,7 +59,7 @@ export const getLiveData = createServerFn({ method: "POST" })
     const s = context.supabase;
     const results = await Promise.all([
       s.from("profiles").select("*").eq("id", context.userId).single(),
-      s.from("circles").select("*").order("created_at"),
+      s.rpc("my_circles"),
       s.from("items").select("*").order("created_at", { ascending: false }).limit(500),
       s.from("wishes").select("*"),
       s.from("claims").select("*").order("created_at", { ascending: false }),
@@ -67,6 +68,8 @@ export const getLiveData = createServerFn({ method: "POST" })
       s.from("swipe_passes").select("*"),
       s.from("item_watchers").select("*"),
       s.from("user_roles").select("role"),
+      s.from("item_circles").select("*"),
+      s.from("circles").select("id,name,is_test,required_email_domain").order("created_at"),
     ]);
     for (const result of results) if (result.error) throw new Error(result.error.message);
     const [
@@ -80,14 +83,21 @@ export const getLiveData = createServerFn({ method: "POST" })
       passes,
       watchers,
       roles,
+      itemCircles,
+      adminCircles,
     ] = results;
-    const circleRows = circles.data ?? [];
+    const circleRows = (circles.data ?? []) as unknown as CircleSummary[];
     const peopleResults = await Promise.all(
       circleRows.map((c) => s.rpc("member_names", { circle: c.id })),
     );
     const people = peopleResults.flatMap((r, i) =>
-      (r.data ?? []).map((p) => ({ ...p, circle_id: circleRows[i]!.id })),
+      (r.data ?? []).map((p) => ({ ...p, circle_id: circleRows[i]?.id ?? "" })),
     );
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const signedCircles = await Promise.all(circleRows.map(async circle => {
+      const photo = circle.photo_url ? await supabaseAdmin.storage.from("item-photos").createSignedUrl(circle.photo_url,3600) : null;
+      return { ...circle, photo: photo?.data?.signedUrl ?? "" };
+    }));
     const itemRows = items.data ?? [];
     const photos = await s.storage.from("item-photos").createSignedUrls(
       itemRows.map((i) => i.photo_path),
@@ -101,8 +111,9 @@ export const getLiveData = createServerFn({ method: "POST" })
     return {
       profile: profile.data,
       avatarPhoto: avatar?.data?.signedUrl ?? "",
-      circles: circleRows,
-      items: itemRows.map((i) => ({ ...i, photo_url: urls.get(i.photo_path) ?? "" })),
+      circles: signedCircles,
+      adminCircles: adminCircles.data ?? [],
+      items: itemRows.map((i) => ({ ...i, circle_ids: (itemCircles.data ?? []).filter(link => link.item_id === i.id).sort((a,b)=>a.position-b.position).map(link=>link.circle_id), photo_url: urls.get(i.photo_path) ?? "" })),
       wishes: wishes.data ?? [],
       claims: claims.data ?? [],
       notifications: notifications.data ?? [],

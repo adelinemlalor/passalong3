@@ -18,6 +18,8 @@ import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as TestSettingsRouteImport } from './routes/test-settings'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedBrowseRouteImport } from './routes/_authenticated/browse'
+import { Route as AuthenticatedCirclesRouteImport } from './routes/_authenticated/circles'
+import { Route as AuthenticatedFindCirclesRouteImport } from './routes/_authenticated/find-circles'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
 import { Route as AuthenticatedMatchTesterRouteImport } from './routes/_authenticated/match-tester'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
@@ -32,10 +34,13 @@ import { Route as ItemIdRouteImport } from './routes/item.$id'
 import { Route as JoinTokenRouteImport } from './routes/join.$token'
 import { Route as MoveIdRouteImport } from './routes/move.$id'
 import { Route as NotificationsSettingsRouteImport } from './routes/notifications.settings'
+import { Route as AuthenticatedCIdRouteImport } from './routes/_authenticated/c.$id'
 import { Route as AuthenticatedMessagesIndexRouteImport } from './routes/_authenticated/messages.index'
 import { Route as AuthenticatedMessagesIdRouteImport } from './routes/_authenticated/messages.$id'
 import { Route as AuthenticatedNotificationsIndexRouteImport } from './routes/_authenticated/notifications.index'
+import { Route as AuthenticatedCIdEditRouteImport } from './routes/_authenticated/c.$id_.edit'
 import { Route as ApiPublicJobsExpirationsRouteImport } from './routes/api.public.jobs.expirations'
+import { Route as AuthenticatedCIdMemberMemberIdRouteImport } from './routes/_authenticated/c.$id_.member.$memberId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -81,6 +86,17 @@ const AuthenticatedBrowseRoute = AuthenticatedBrowseRouteImport.update({
   path: '/browse',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCirclesRoute = AuthenticatedCirclesRouteImport.update({
+  id: '/circles',
+  path: '/circles',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFindCirclesRoute =
+  AuthenticatedFindCirclesRouteImport.update({
+    id: '/find-circles',
+    path: '/find-circles',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   id: '/home',
   path: '/home',
@@ -153,6 +169,11 @@ const NotificationsSettingsRoute = NotificationsSettingsRouteImport.update({
   path: '/notifications/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedCIdRoute = AuthenticatedCIdRouteImport.update({
+  id: '/c/$id',
+  path: '/c/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMessagesIndexRoute =
   AuthenticatedMessagesIndexRouteImport.update({
     id: '/messages/',
@@ -170,11 +191,22 @@ const AuthenticatedNotificationsIndexRoute =
     path: '/notifications/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCIdEditRoute = AuthenticatedCIdEditRouteImport.update({
+  id: '/c/$id_/edit',
+  path: '/c/$id/edit',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const ApiPublicJobsExpirationsRoute =
   ApiPublicJobsExpirationsRouteImport.update({
     id: '/api/public/jobs/expirations',
     path: '/api/public/jobs/expirations',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedCIdMemberMemberIdRoute =
+  AuthenticatedCIdMemberMemberIdRouteImport.update({
+    id: '/c/$id_/member/$memberId',
+    path: '/c/$id/member/$memberId',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -186,6 +218,8 @@ export interface FileRoutesByFullPath {
   '/test-settings': typeof TestSettingsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/browse': typeof AuthenticatedBrowseRoute
+  '/circles': typeof AuthenticatedCirclesRoute
+  '/find-circles': typeof AuthenticatedFindCirclesRoute
   '/home': typeof AuthenticatedHomeRoute
   '/match-tester': typeof AuthenticatedMatchTesterRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -200,10 +234,13 @@ export interface FileRoutesByFullPath {
   '/join/$token': typeof JoinTokenRoute
   '/move/$id': typeof MoveIdRoute
   '/notifications/settings': typeof NotificationsSettingsRoute
+  '/c/$id': typeof AuthenticatedCIdRoute
   '/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/messages/': typeof AuthenticatedMessagesIndexRoute
   '/notifications/': typeof AuthenticatedNotificationsIndexRoute
+  '/c/$id/edit': typeof AuthenticatedCIdEditRoute
   '/api/public/jobs/expirations': typeof ApiPublicJobsExpirationsRoute
+  '/c/$id/member/$memberId': typeof AuthenticatedCIdMemberMemberIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -214,6 +251,8 @@ export interface FileRoutesByTo {
   '/test-settings': typeof TestSettingsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/browse': typeof AuthenticatedBrowseRoute
+  '/circles': typeof AuthenticatedCirclesRoute
+  '/find-circles': typeof AuthenticatedFindCirclesRoute
   '/home': typeof AuthenticatedHomeRoute
   '/match-tester': typeof AuthenticatedMatchTesterRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -228,10 +267,13 @@ export interface FileRoutesByTo {
   '/join/$token': typeof JoinTokenRoute
   '/move/$id': typeof MoveIdRoute
   '/notifications/settings': typeof NotificationsSettingsRoute
+  '/c/$id': typeof AuthenticatedCIdRoute
   '/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/messages': typeof AuthenticatedMessagesIndexRoute
   '/notifications': typeof AuthenticatedNotificationsIndexRoute
+  '/c/$id/edit': typeof AuthenticatedCIdEditRoute
   '/api/public/jobs/expirations': typeof ApiPublicJobsExpirationsRoute
+  '/c/$id/member/$memberId': typeof AuthenticatedCIdMemberMemberIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -244,6 +286,8 @@ export interface FileRoutesById {
   '/test-settings': typeof TestSettingsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/browse': typeof AuthenticatedBrowseRoute
+  '/_authenticated/circles': typeof AuthenticatedCirclesRoute
+  '/_authenticated/find-circles': typeof AuthenticatedFindCirclesRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
   '/_authenticated/match-tester': typeof AuthenticatedMatchTesterRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
@@ -258,10 +302,13 @@ export interface FileRoutesById {
   '/join/$token': typeof JoinTokenRoute
   '/move/$id': typeof MoveIdRoute
   '/notifications/settings': typeof NotificationsSettingsRoute
+  '/_authenticated/c/$id': typeof AuthenticatedCIdRoute
   '/_authenticated/messages/$id': typeof AuthenticatedMessagesIdRoute
   '/_authenticated/messages/': typeof AuthenticatedMessagesIndexRoute
   '/_authenticated/notifications/': typeof AuthenticatedNotificationsIndexRoute
+  '/_authenticated/c/$id_/edit': typeof AuthenticatedCIdEditRoute
   '/api/public/jobs/expirations': typeof ApiPublicJobsExpirationsRoute
+  '/_authenticated/c/$id_/member/$memberId': typeof AuthenticatedCIdMemberMemberIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -274,6 +321,8 @@ export interface FileRouteTypes {
     | '/test-settings'
     | '/admin'
     | '/browse'
+    | '/circles'
+    | '/find-circles'
     | '/home'
     | '/match-tester'
     | '/onboarding'
@@ -288,10 +337,13 @@ export interface FileRouteTypes {
     | '/join/$token'
     | '/move/$id'
     | '/notifications/settings'
+    | '/c/$id'
     | '/messages/$id'
     | '/messages/'
     | '/notifications/'
+    | '/c/$id/edit'
     | '/api/public/jobs/expirations'
+    | '/c/$id/member/$memberId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -302,6 +354,8 @@ export interface FileRouteTypes {
     | '/test-settings'
     | '/admin'
     | '/browse'
+    | '/circles'
+    | '/find-circles'
     | '/home'
     | '/match-tester'
     | '/onboarding'
@@ -316,10 +370,13 @@ export interface FileRouteTypes {
     | '/join/$token'
     | '/move/$id'
     | '/notifications/settings'
+    | '/c/$id'
     | '/messages/$id'
     | '/messages'
     | '/notifications'
+    | '/c/$id/edit'
     | '/api/public/jobs/expirations'
+    | '/c/$id/member/$memberId'
   id:
     | '__root__'
     | '/'
@@ -331,6 +388,8 @@ export interface FileRouteTypes {
     | '/test-settings'
     | '/_authenticated/admin'
     | '/_authenticated/browse'
+    | '/_authenticated/circles'
+    | '/_authenticated/find-circles'
     | '/_authenticated/home'
     | '/_authenticated/match-tester'
     | '/_authenticated/onboarding'
@@ -345,10 +404,13 @@ export interface FileRouteTypes {
     | '/join/$token'
     | '/move/$id'
     | '/notifications/settings'
+    | '/_authenticated/c/$id'
     | '/_authenticated/messages/$id'
     | '/_authenticated/messages/'
     | '/_authenticated/notifications/'
+    | '/_authenticated/c/$id_/edit'
     | '/api/public/jobs/expirations'
+    | '/_authenticated/c/$id_/member/$memberId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -431,6 +493,20 @@ declare module '@tanstack/react-router' {
       path: '/browse'
       fullPath: '/browse'
       preLoaderRoute: typeof AuthenticatedBrowseRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/circles': {
+      id: '/_authenticated/circles'
+      path: '/circles'
+      fullPath: '/circles'
+      preLoaderRoute: typeof AuthenticatedCirclesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/find-circles': {
+      id: '/_authenticated/find-circles'
+      path: '/find-circles'
+      fullPath: '/find-circles'
+      preLoaderRoute: typeof AuthenticatedFindCirclesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/home': {
@@ -531,6 +607,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NotificationsSettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/c/$id': {
+      id: '/_authenticated/c/$id'
+      path: '/c/$id'
+      fullPath: '/c/$id'
+      preLoaderRoute: typeof AuthenticatedCIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/messages/': {
       id: '/_authenticated/messages/'
       path: '/messages'
@@ -552,6 +635,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedNotificationsIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/c/$id_/edit': {
+      id: '/_authenticated/c/$id_/edit'
+      path: '/c/$id/edit'
+      fullPath: '/c/$id/edit'
+      preLoaderRoute: typeof AuthenticatedCIdEditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/public/jobs/expirations': {
       id: '/api/public/jobs/expirations'
       path: '/api/public/jobs/expirations'
@@ -559,12 +649,21 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicJobsExpirationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/c/$id_/member/$memberId': {
+      id: '/_authenticated/c/$id_/member/$memberId'
+      path: '/c/$id/member/$memberId'
+      fullPath: '/c/$id/member/$memberId'
+      preLoaderRoute: typeof AuthenticatedCIdMemberMemberIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedBrowseRoute: typeof AuthenticatedBrowseRoute
+  AuthenticatedCirclesRoute: typeof AuthenticatedCirclesRoute
+  AuthenticatedFindCirclesRoute: typeof AuthenticatedFindCirclesRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
   AuthenticatedMatchTesterRoute: typeof AuthenticatedMatchTesterRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
@@ -573,14 +672,19 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedStartCircleRoute: typeof AuthenticatedStartCircleRoute
   AuthenticatedSwipeRoute: typeof AuthenticatedSwipeRoute
   AuthenticatedWishlistRoute: typeof AuthenticatedWishlistRoute
+  AuthenticatedCIdRoute: typeof AuthenticatedCIdRoute
   AuthenticatedMessagesIdRoute: typeof AuthenticatedMessagesIdRoute
   AuthenticatedMessagesIndexRoute: typeof AuthenticatedMessagesIndexRoute
   AuthenticatedNotificationsIndexRoute: typeof AuthenticatedNotificationsIndexRoute
+  AuthenticatedCIdEditRoute: typeof AuthenticatedCIdEditRoute
+  AuthenticatedCIdMemberMemberIdRoute: typeof AuthenticatedCIdMemberMemberIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedBrowseRoute: AuthenticatedBrowseRoute,
+  AuthenticatedCirclesRoute: AuthenticatedCirclesRoute,
+  AuthenticatedFindCirclesRoute: AuthenticatedFindCirclesRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
   AuthenticatedMatchTesterRoute: AuthenticatedMatchTesterRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
@@ -589,9 +693,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedStartCircleRoute: AuthenticatedStartCircleRoute,
   AuthenticatedSwipeRoute: AuthenticatedSwipeRoute,
   AuthenticatedWishlistRoute: AuthenticatedWishlistRoute,
+  AuthenticatedCIdRoute: AuthenticatedCIdRoute,
   AuthenticatedMessagesIdRoute: AuthenticatedMessagesIdRoute,
   AuthenticatedMessagesIndexRoute: AuthenticatedMessagesIndexRoute,
   AuthenticatedNotificationsIndexRoute: AuthenticatedNotificationsIndexRoute,
+  AuthenticatedCIdEditRoute: AuthenticatedCIdEditRoute,
+  AuthenticatedCIdMemberMemberIdRoute: AuthenticatedCIdMemberMemberIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

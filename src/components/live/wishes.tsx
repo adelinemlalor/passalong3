@@ -89,7 +89,7 @@ export function Onboarding() {
   const { data, circleId, act, busy } = useLive(),
     [step, setStep] = useState(0);
   if (!circleId) return <NoCircle />;
-  const items = data.items.filter((i) => i.circle_id === circleId && available(i));
+  const items = data.items.filter((i) => i.circle_ids.includes(circleId) && available(i));
   return (
     <div className="live-onboarding">
       <p className="eyebrow">WELCOME TO YOUR CIRCLE</p>

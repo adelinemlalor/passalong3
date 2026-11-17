@@ -17,7 +17,7 @@ try:
  print('expired item rejected at claim time and persisted by job')
  assert requests.get(B+'/rest/v1/items?id=eq.'+item['id'],headers=sessions[2]).json()==[]
  assert not call('passalong_action',{'action':'claim','payload':{'item_id':item['id']}},sessions[2]).ok
- assert not call('passalong_action',{'action':'create_circle','payload':{'name':'Unauthorized'}},sessions[2]).ok
+ assert not call('circle_action',{'action':'remove_member','payload':{'circle_id':c['id'],'user_id':users[0]}},sessions[2]).ok
  assert not call('admin_metrics',{},sessions[2]).ok
  assert not requests.post(B+'/rest/v1/user_roles',headers=sessions[2],json={'user_id':users[2],'role':'admin'}).ok
  print('outsider inventory, actions, admin metrics and role escalation rejected')

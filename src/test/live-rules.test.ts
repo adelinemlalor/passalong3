@@ -60,5 +60,5 @@ describe("Real Passalong rules", () => {
     expect(quietHours(new Date("2026-11-17T16:00:00Z"))).toBe(false));
   it("rejects an external return URL", () => expect(safeNext("//evil.example")).toBe("/"));
   it("preserves same-origin item paths", () => expect(safeNext("/i/123")).toBe("/i/123"));
-  it("records only the requested event types", () => expect(EVENT_NAMES).toHaveLength(23));
+  it("retains the 23 original events and adds the seven circle events", () => expect(EVENT_NAMES).toHaveLength(30));
 });
